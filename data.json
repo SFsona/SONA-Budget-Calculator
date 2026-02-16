@@ -1,5 +1,6 @@
 {
   "currencySymbol": "£",
+  "vatRate": 0.2,
 
   "roomTypes": [
     "Hallway and landing",
@@ -28,7 +29,7 @@
       "label": "Essential keypad",
       "inputType": "qty",
       "price": 140,
-      "tags": ["needs_network"]
+      "tags": []
     },
     {
       "id": "lc_keypad_signature",
@@ -36,7 +37,7 @@
       "label": "Signature keypad",
       "inputType": "qty",
       "price": 490,
-      "tags": ["needs_network"]
+      "tags": []
     },
     {
       "id": "lc_keypad_premium",
@@ -44,7 +45,7 @@
       "label": "Premium keypad",
       "inputType": "qty",
       "price": 800,
-      "tags": ["needs_network"]
+      "tags": []
     },
     {
       "id": "lc_circuits_standard",
@@ -52,7 +53,7 @@
       "label": "Standard circuits",
       "inputType": "qty",
       "price": 190,
-      "tags": ["needs_network"]
+      "tags": []
     },
     {
       "id": "lc_circuits_linear",
@@ -60,7 +61,7 @@
       "label": "Linear circuits",
       "inputType": "qty",
       "price": 297,
-      "tags": ["needs_network"]
+      "tags": []
     },
 
     {
