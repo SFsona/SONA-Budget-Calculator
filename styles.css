@@ -49,6 +49,12 @@ body {
   gap: 2px;
 }
 
+.brandLogo {
+  height: 22px;
+  width: auto;
+  display: block;
+}
+
 .brandMark {
   font-size: 18px;
   letter-spacing: 0.14em;
