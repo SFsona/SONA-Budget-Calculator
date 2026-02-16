@@ -23,149 +23,26 @@
   ],
 
   "options": [
-    {
-      "id": "lc_keypad_essential",
-      "categoryId": "lighting_control",
-      "label": "Essential keypad",
-      "inputType": "qty",
-      "price": 140,
-      "tags": []
-    },
-    {
-      "id": "lc_keypad_signature",
-      "categoryId": "lighting_control",
-      "label": "Signature keypad",
-      "inputType": "qty",
-      "price": 490,
-      "tags": []
-    },
-    {
-      "id": "lc_keypad_premium",
-      "categoryId": "lighting_control",
-      "label": "Premium keypad",
-      "inputType": "qty",
-      "price": 800,
-      "tags": []
-    },
-    {
-      "id": "lc_circuits_standard",
-      "categoryId": "lighting_control",
-      "label": "Standard circuits",
-      "inputType": "qty",
-      "price": 190,
-      "tags": []
-    },
-    {
-      "id": "lc_circuits_linear",
-      "categoryId": "lighting_control",
-      "label": "Linear circuits",
-      "inputType": "qty",
-      "price": 297,
-      "tags": []
-    },
+    { "id": "lc_keypad_essential", "categoryId": "lighting_control", "label": "Essential keypad", "inputType": "qty", "price": 140, "tags": [] },
+    { "id": "lc_keypad_signature", "categoryId": "lighting_control", "label": "Signature keypad", "inputType": "qty", "price": 490, "tags": [] },
+    { "id": "lc_keypad_premium", "categoryId": "lighting_control", "label": "Premium keypad", "inputType": "qty", "price": 800, "tags": [] },
+    { "id": "lc_circuits_standard", "categoryId": "lighting_control", "label": "Standard circuits", "inputType": "qty", "price": 190, "tags": [] },
+    { "id": "lc_circuits_linear", "categoryId": "lighting_control", "label": "Linear circuits", "inputType": "qty", "price": 297, "tags": [] },
 
-    {
-      "id": "lf_downlight_essential",
-      "categoryId": "lighting_fittings",
-      "label": "Essential downlight",
-      "inputType": "qty",
-      "price": 115,
-      "tags": []
-    },
-    {
-      "id": "lf_downlight_signature",
-      "categoryId": "lighting_fittings",
-      "label": "Signature downlight",
-      "inputType": "qty",
-      "price": 135,
-      "tags": []
-    },
-    {
-      "id": "lf_downlight_premium",
-      "categoryId": "lighting_fittings",
-      "label": "Premium downlight",
-      "inputType": "qty",
-      "price": 180,
-      "tags": []
-    },
-    {
-      "id": "lf_linear_led_m",
-      "categoryId": "lighting_fittings",
-      "label": "Linear LED metres",
-      "inputType": "qty",
-      "price": 50,
-      "tags": []
-    },
+    { "id": "lf_downlight_essential", "categoryId": "lighting_fittings", "label": "Essential downlight", "inputType": "qty", "price": 115, "tags": [] },
+    { "id": "lf_downlight_signature", "categoryId": "lighting_fittings", "label": "Signature downlight", "inputType": "qty", "price": 135, "tags": [] },
+    { "id": "lf_downlight_premium", "categoryId": "lighting_fittings", "label": "Premium downlight", "inputType": "qty", "price": 180, "tags": [] },
+    { "id": "lf_linear_led_m", "categoryId": "lighting_fittings", "label": "Linear LED metres", "inputType": "qty", "price": 50, "tags": [] },
 
-    {
-      "id": "au_zone_essential",
-      "categoryId": "audio",
-      "label": "Essential music zone",
-      "inputType": "qty",
-      "price": 1500,
-      "tags": ["needs_network", "needs_rack", "rack_unit"]
-    },
-    {
-      "id": "au_zone_signature",
-      "categoryId": "audio",
-      "label": "Signature music zone",
-      "inputType": "qty",
-      "price": 1800,
-      "tags": ["needs_network", "needs_rack", "rack_unit"]
-    },
-    {
-      "id": "au_zone_premium",
-      "categoryId": "audio",
-      "label": "Premium music zone",
-      "inputType": "qty",
-      "price": 2800,
-      "tags": ["needs_network", "needs_rack", "rack_unit"]
-    },
-    {
-      "id": "au_zone_ultimate",
-      "categoryId": "audio",
-      "label": "Ultimate music zone",
-      "inputType": "qty",
-      "price": 3500,
-      "tags": ["needs_network", "needs_rack", "rack_unit"]
-    },
+    { "id": "au_zone_essential", "categoryId": "audio", "label": "Essential music zone", "inputType": "qty", "price": 1500, "tags": ["needs_network", "needs_rack", "rack_unit"] },
+    { "id": "au_zone_signature", "categoryId": "audio", "label": "Signature music zone", "inputType": "qty", "price": 1800, "tags": ["needs_network", "needs_rack", "rack_unit"] },
+    { "id": "au_zone_premium", "categoryId": "audio", "label": "Premium music zone", "inputType": "qty", "price": 2800, "tags": ["needs_network", "needs_rack", "rack_unit"] },
+    { "id": "au_zone_ultimate", "categoryId": "audio", "label": "Ultimate music zone", "inputType": "qty", "price": 3500, "tags": ["needs_network", "needs_rack", "rack_unit"] },
 
-    {
-      "id": "mc_essential",
-      "categoryId": "cinema",
-      "label": "Essential media system",
-      "inputType": "choice",
-      "groupId": "media_system",
-      "price": 6000,
-      "tags": ["needs_network", "needs_rack", "rack_unit"]
-    },
-    {
-      "id": "mc_signature",
-      "categoryId": "cinema",
-      "label": "Signature media system",
-      "inputType": "choice",
-      "groupId": "media_system",
-      "price": 10000,
-      "tags": ["needs_network", "needs_rack", "rack_unit"]
-    },
-    {
-      "id": "mc_premium",
-      "categoryId": "cinema",
-      "label": "Premium media system",
-      "inputType": "choice",
-      "groupId": "media_system",
-      "price": 15000,
-      "tags": ["needs_network", "needs_rack", "rack_unit"]
-    },
-    {
-      "id": "mc_ultimate",
-      "categoryId": "cinema",
-      "label": "Ultimate media system",
-      "inputType": "choice",
-      "groupId": "media_system",
-      "price": 20000,
-      "tags": ["needs_network", "needs_rack", "rack_unit"]
-    }
+    { "id": "mc_essential", "categoryId": "cinema", "label": "Essential media system", "inputType": "choice", "groupId": "media_system", "price": 6000, "tags": ["needs_network", "needs_rack", "rack_unit"] },
+    { "id": "mc_signature", "categoryId": "cinema", "label": "Signature media system", "inputType": "choice", "groupId": "media_system", "price": 10000, "tags": ["needs_network", "needs_rack", "rack_unit"] },
+    { "id": "mc_premium", "categoryId": "cinema", "label": "Premium media system", "inputType": "choice", "groupId": "media_system", "price": 15000, "tags": ["needs_network", "needs_rack", "rack_unit"] },
+    { "id": "mc_ultimate", "categoryId": "cinema", "label": "Ultimate media system", "inputType": "choice", "groupId": "media_system", "price": 20000, "tags": ["needs_network", "needs_rack", "rack_unit"] }
   ],
 
   "rules": {
