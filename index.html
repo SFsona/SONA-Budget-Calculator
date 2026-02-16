@@ -18,95 +18,18 @@
         <div class="brandSub">Budget Calculator</div>
       </div>
 
-      <div class="totals">
-        <div class="totalsRow">
-          <div class="totalsLabel">Room</div>
-          <div class="totalsValue" id="roomTotal">£0</div>
-        </div>
-        <div class="totalsRow">
-          <div class="totalsLabel">Overall</div>
-          <div class="totalsValue totalsValueStrong" id="overallTotal">£0</div>
-        </div>
-      </div>
-    </header>
+      <div class="topRight">
+        <label class="vatToggle" for="vatToggle">
+          <span class="vatText">Include VAT</span>
+          <span class="switch">
+            <input id="vatToggle" type="checkbox" />
+            <span class="slider"></span>
+          </span>
+        </label>
 
-    <main class="shell">
-      <div class="card">
-        <div class="navRow">
-          <button id="backBtn" class="btn btnGhost hidden" type="button">Back</button>
-          <div class="stepPills" aria-label="Steps">
-            <div class="pill" id="pill1">Rooms</div>
-            <div class="pill" id="pill2">Options</div>
-            <div class="pill" id="pill3">Summary</div>
+        <div class="totals">
+          <div class="totalsRow">
+            <div class="totalsLabel">Room</div>
+            <div class="totalsValue" id="roomTotal">£0</div>
           </div>
-          <div class="navSpacer"></div>
-        </div>
-
-        <!-- Step 1 -->
-        <section id="step1" class="step">
-          <div class="center">
-            <h1 class="title">Create rooms</h1>
-
-            <div class="row">
-              <input id="roomName" class="input" placeholder="Room name" />
-              <select id="roomType" class="select"></select>
-              <button id="addRoomBtn" class="btn" type="button">Add room</button>
-            </div>
-
-            <div id="roomsList" class="roomsList"></div>
-
-            <div class="row rowRight">
-              <button id="startBtn" class="btn btnPrimary" type="button" disabled>
-                Start
-              </button>
-            </div>
-          </div>
-        </section>
-
-        <!-- Step 2 -->
-        <section id="step2" class="step hidden">
-          <div class="center">
-            <div class="roomHeader">
-              <div>
-                <div class="roomTitle" id="activeRoomTitle">Room</div>
-                <div class="roomMeta" id="activeRoomMeta"></div>
-              </div>
-
-              <div class="roomNav">
-                <button id="prevRoomBtn" class="btn btnGhost" type="button">Previous room</button>
-                <button id="nextRoomBtn" class="btn btnGhost" type="button">Next room</button>
-              </div>
-            </div>
-
-            <div id="optionsWrap" class="optionsWrap"></div>
-
-            <div class="row rowRight">
-              <button id="reviewBtn" class="btn btnPrimary" type="button">Review</button>
-            </div>
-          </div>
-        </section>
-
-        <!-- Step 3 -->
-        <section id="step3" class="step hidden">
-          <div class="center">
-            <h1 class="title">Summary</h1>
-
-            <div id="summaryRooms" class="summaryBlock"></div>
-
-            <div class="summaryBlock">
-              <h2 class="subtitle">Project add ons</h2>
-              <div id="summaryRules" class="summaryList"></div>
-            </div>
-
-            <div class="row rowRight">
-              <button id="printBtn" class="btn btnGhost" type="button">Print</button>
-              <button id="editBtn" class="btn btnPrimary" type="button">Edit</button>
-            </div>
-          </div>
-        </section>
-      </div>
-    </main>
-
-    <script src="./app.js" defer></script>
-  </body>
-</html>
+          <div class="totalsRow
