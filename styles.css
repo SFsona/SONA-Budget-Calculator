@@ -1,0 +1,381 @@
+:root {
+  --bg1: #07122a;
+  --bg2: #2a0b4c;
+  --bg3: #b0126e;
+
+  --card: rgba(255, 255, 255, 0.08);
+  --card2: rgba(255, 255, 255, 0.06);
+  --stroke: rgba(255, 255, 255, 0.14);
+
+  --text: rgba(255, 255, 255, 0.92);
+  --muted: rgba(255, 255, 255, 0.72);
+
+  --btn: rgba(255, 255, 255, 0.12);
+  --btnHover: rgba(255, 255, 255, 0.18);
+
+  --accent: rgba(255, 255, 255, 0.92);
+  --accentText: #0b1020;
+
+  --radius: 18px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  color: var(--text);
+  /* set your Adobe font family name here */
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: radial-gradient(1200px 800px at 20% 20%, var(--bg3), transparent 60%),
+              radial-gradient(900px 700px at 80% 30%, var(--bg2), transparent 55%),
+              radial-gradient(1000px 800px at 60% 80%, var(--bg1), transparent 55%),
+              linear-gradient(135deg, var(--bg1), var(--bg2), var(--bg3));
+  min-height: 100vh;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 18px 0 18px;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.brandMark {
+  font-size: 18px;
+  letter-spacing: 0.14em;
+}
+
+.brandSub {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.totals {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--stroke);
+  border-radius: 14px;
+  background: var(--card2);
+}
+
+.totalsRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 180px;
+}
+
+.totalsLabel {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.totalsValue {
+  font-size: 14px;
+}
+
+.totalsValueStrong {
+  font-size: 16px;
+}
+
+.shell {
+  display: grid;
+  place-items: center;
+  padding: 18px;
+}
+
+.card {
+  width: min(980px, 100%);
+  border-radius: var(--radius);
+  border: 1px solid var(--stroke);
+  background: var(--card);
+  backdrop-filter: blur(12px);
+  padding: 16px;
+}
+
+.center {
+  text-align: center;
+  padding: 6px 6px 14px 6px;
+}
+
+.navRow {
+  display: grid;
+  grid-template-columns: 120px 1fr 120px;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 2px 12px 2px;
+}
+
+.navSpacer { height: 1px; }
+
+.stepPills {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.pill {
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--stroke);
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.pillActive {
+  background: rgba(255, 255, 255, 0.22);
+  color: var(--text);
+}
+
+.title {
+  margin: 10px 0 12px 0;
+  font-size: 28px;
+  letter-spacing: 0.02em;
+}
+
+.subtitle {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  color: var(--text);
+}
+
+.row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 10px 0;
+}
+
+.rowRight {
+  justify-content: flex-end;
+}
+
+.input, .select {
+  padding: 12px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--stroke);
+  background: rgba(0, 0, 0, 0.18);
+  color: var(--text);
+  min-width: 220px;
+  outline: none;
+}
+
+.select { min-width: 240px; }
+
+.btn {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--stroke);
+  background: var(--btn);
+  color: var(--text);
+  cursor: pointer;
+  transition: background 140ms ease;
+}
+
+.btn:hover { background: var(--btnHover); }
+
+.btnPrimary {
+  background: var(--accent);
+  color: var(--accentText);
+  border-color: transparent;
+}
+
+.btnPrimary:hover { background: rgba(255, 255, 255, 0.86); }
+
+.btnGhost {
+  background: transparent;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.hidden { display: none !important; }
+
+.roomsList {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.roomCard {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid var(--stroke);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.roomCardLeft {
+  text-align: left;
+}
+
+.roomCardTitle {
+  font-size: 14px;
+}
+
+.roomCardMeta {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+.roomHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 6px 0 12px 0;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid var(--stroke);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.roomTitle {
+  font-size: 18px;
+  text-align: left;
+}
+
+.roomMeta {
+  font-size: 12px;
+  color: var(--muted);
+  text-align: left;
+  margin-top: 2px;
+}
+
+.roomNav {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.optionsWrap {
+  display: grid;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.category {
+  border-radius: 16px;
+  border: 1px solid var(--stroke);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 12px;
+  text-align: left;
+}
+
+.categoryTitle {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+}
+
+.optionRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(0, 0, 0, 0.12);
+  margin-bottom: 8px;
+}
+
+.optionMain {
+  display: grid;
+  gap: 4px;
+}
+
+.optionLabel {
+  font-size: 14px;
+}
+
+.optionPrice {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.qty {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.qtyBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--stroke);
+  background: rgba(255, 255, 255, 0.10);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.qtyValue {
+  min-width: 26px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.choice {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.choice input { transform: scale(1.15); }
+
+.summaryBlock {
+  text-align: left;
+  border-radius: 16px;
+  border: 1px solid var(--stroke);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 12px;
+  margin: 12px 0;
+}
+
+.summaryRoomTitle {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.summaryList {
+  display: grid;
+  gap: 8px;
+}
+
+.summaryLine {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.summaryLineMuted { color: var(--muted); }
+
+@media print {
+  body { background: #ffffff; color: #111; }
+  .topbar, .navRow, .btn, .roomNav { display: none !important; }
+  .card { border: none; background: transparent; }
+  .summaryBlock { border: 1px solid #ddd; background: transparent; }
+}
