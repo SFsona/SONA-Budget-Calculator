@@ -1,6 +1,6 @@
 /* SONA Budget Calculator v1
    Data driven via data.json
-   Prices in data are ex VAT
+   Prices are stored ex VAT
 */
 
 const state = {
@@ -35,17 +35,18 @@ function applyVat(amountExVat) {
 }
 
 function setVatModeUI() {
-  byId("vatMode").textContent = state.includeVat ? "Inc VAT" : "Ex VAT";
+  const el = byId("vatMode");
+  if (el) el.textContent = state.includeVat ? "Inc VAT" : "Ex VAT";
 }
 
 function setPills() {
   const p1 = byId("pill1");
   const p2 = byId("pill2");
   const p3 = byId("pill3");
-  [p1, p2, p3].forEach(p => p.classList.remove("pillActive"));
-  if (state.step === 1) p1.classList.add("pillActive");
-  if (state.step === 2) p2.classList.add("pillActive");
-  if (state.step === 3) p3.classList.add("pillActive");
+  [p1, p2, p3].forEach(p => p && p.classList.remove("pillActive"));
+  if (state.step === 1) p1 && p1.classList.add("pillActive");
+  if (state.step === 2) p2 && p2.classList.add("pillActive");
+  if (state.step === 3) p3 && p3.classList.add("pillActive");
 }
 
 function showStep(step) {
@@ -134,18 +135,15 @@ function renderRoomsList() {
     left.appendChild(meta);
 
     const actions = document.createElement("div");
-
     const del = document.createElement("button");
     del.className = "btn btnGhost";
     del.type = "button";
     del.textContent = "Remove";
     del.addEventListener("click", () => removeRoom(room.id));
-
     actions.appendChild(del);
 
     card.appendChild(left);
     card.appendChild(actions);
-
     list.appendChild(card);
   }
 
@@ -180,17 +178,20 @@ function getRoomBaseTotalExVat(room) {
 
 function getRoomTags(room) {
   const tags = [];
+
   for (const [optionId, qty] of Object.entries(room.qty)) {
     const opt = optionById(optionId);
     if (!opt) continue;
     const count = Math.max(0, Number(qty || 0));
     for (let i = 0; i < count; i++) tags.push(...(opt.tags || []));
   }
+
   for (const optionId of Object.values(room.choice)) {
     const opt = optionById(optionId);
     if (!opt) continue;
     tags.push(...(opt.tags || []));
   }
+
   return tags;
 }
 
@@ -241,7 +242,6 @@ function computeRuleAddOnsExVat() {
       const tally = tallyTagsAllRooms();
       const unitTag = r.rackUnitTag || "rack_unit";
       const units = tally.get(unitTag) || 0;
-
       const amountExVat = (r.baseAmount || 0) + (r.amountPerRackUnitTag || 0) * units;
 
       addOns.push({
@@ -257,29 +257,16 @@ function computeRuleAddOnsExVat() {
 }
 
 function computeTotals() {
-  const roomTotals = state.rooms.map(r => ({
-    roomId: r.id,
-    baseExVat: getRoomBaseTotalExVat(r)
-  }));
-
   const addOns = computeRuleAddOnsExVat();
 
-  const baseTotalExVat = roomTotals.reduce((a, b) => a + b.baseExVat, 0);
-  const addOnTotalExVat = addOns.reduce((a, b) => a + b.amountExVat, 0);
+  const baseTotalExVat = state.rooms.reduce((sum, r) => sum + getRoomBaseTotalExVat(r), 0);
+  const addOnTotalExVat = addOns.reduce((sum, a) => sum + a.amountExVat, 0);
 
   const subTotalExVat = baseTotalExVat + addOnTotalExVat;
   const vatAmount = subTotalExVat * vatRate();
   const totalIncVat = subTotalExVat + vatAmount;
 
-  return {
-    roomTotals,
-    addOns,
-    baseTotalExVat,
-    addOnTotalExVat,
-    subTotalExVat,
-    vatAmount,
-    totalIncVat
-  };
+  return { addOns, baseTotalExVat, addOnTotalExVat, subTotalExVat, vatAmount, totalIncVat };
 }
 
 function updateTotalsUI() {
@@ -311,7 +298,7 @@ function renderActiveRoom() {
 
   for (const cat of state.data.categories) {
     const opts = optionsByCategory(cat.id);
-    if (opts.length === 0) continue;
+    if (!opts.length) continue;
 
     const section = document.createElement("div");
     section.className = "category";
@@ -344,8 +331,7 @@ function renderOptionRow(room, opt) {
 
   const price = document.createElement("div");
   price.className = "optionPrice";
-  const displayPrice = applyVat(opt.price);
-  price.textContent = `${money(displayPrice)}${opt.inputType === "qty" ? " each" : ""}`;
+  price.textContent = `${money(applyVat(opt.price))}${opt.inputType === "qty" ? " each" : ""}`;
 
   main.appendChild(label);
   main.appendChild(price);
@@ -363,8 +349,7 @@ function renderOptionRow(room, opt) {
 
     const val = document.createElement("div");
     val.className = "qtyValue";
-    const current = Number(room.qty[opt.id] || 0);
-    val.textContent = String(current);
+    val.textContent = String(Number(room.qty[opt.id] || 0));
 
     const plus = document.createElement("button");
     plus.className = "qtyBtn";
@@ -439,7 +424,9 @@ function renderSummary() {
     head.className = "summaryRoomTitle";
 
     const left = document.createElement("div");
-    left.innerHTML = `<div class="subtitle">${room.name}</div><div class="summaryLine summaryLineMuted">${room.type}</div>`;
+    left.innerHTML =
+      `<div class="subtitle">${room.name}</div>` +
+      `<div class="summaryLine summaryLineMuted">${room.type}</div>`;
 
     const right = document.createElement("div");
     right.style.fontSize = "14px";
@@ -457,8 +444,7 @@ function renderSummary() {
       if (!opt) continue;
       const line = document.createElement("div");
       line.className = "summaryLine";
-      const lineAmount = applyVat(opt.price * qty);
-      line.innerHTML = `<div>${opt.label} × ${qty}</div><div>${money(lineAmount)}</div>`;
+      line.innerHTML = `<div>${opt.label} × ${qty}</div><div>${money(applyVat(opt.price * qty))}</div>`;
       list.appendChild(line);
     }
 
@@ -467,8 +453,7 @@ function renderSummary() {
       if (!opt) continue;
       const line = document.createElement("div");
       line.className = "summaryLine";
-      const lineAmount = applyVat(opt.price);
-      line.innerHTML = `<div>${opt.label}</div><div>${money(lineAmount)}</div>`;
+      line.innerHTML = `<div>${opt.label}</div><div>${money(applyVat(opt.price))}</div>`;
       list.appendChild(line);
     }
 
@@ -572,5 +557,6 @@ async function main() {
 
 main().catch(err => {
   console.error(err);
-  document.body.innerHTML = `<div style="padding:20px;font-family:system-ui;color:white;">Error loading calculator. Check console.</div>`;
+  document.body.innerHTML =
+    `<div style="padding:20px;font-family:system-ui;color:white;">Error loading calculator. Open the browser console for details.</div>`;
 });
