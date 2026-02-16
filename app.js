@@ -1,5 +1,6 @@
 /* SONA Budget Calculator v1
    Data driven via data.json
+   Prices in data are ex VAT
 */
 
 const state = {
@@ -7,18 +8,34 @@ const state = {
   step: 1,
   rooms: [],
   activeRoomIndex: 0,
+  includeVat: false
 };
-
-const els = {};
 
 function byId(id) {
   return document.getElementById(id);
 }
 
+function currencySymbol() {
+  return state.data?.currencySymbol || "£";
+}
+
+function vatRate() {
+  return Number(state.data?.vatRate ?? 0.2);
+}
+
 function money(value) {
-  const s = state.data?.currencySymbol || "£";
+  const s = currencySymbol();
   const n = Math.round((value + Number.EPSILON) * 100) / 100;
   return `${s}${n.toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+}
+
+function applyVat(amountExVat) {
+  if (!state.includeVat) return amountExVat;
+  return amountExVat * (1 + vatRate());
+}
+
+function setVatModeUI() {
+  byId("vatMode").textContent = state.includeVat ? "Inc VAT" : "Ex VAT";
 }
 
 function setPills() {
@@ -66,8 +83,8 @@ function newRoom(name, type) {
     id: crypto.randomUUID(),
     name,
     type,
-    qty: {},        // optionId -> number
-    choice: {},     // groupId -> optionId
+    qty: {},
+    choice: {}
   };
 }
 
@@ -117,7 +134,6 @@ function renderRoomsList() {
     left.appendChild(meta);
 
     const actions = document.createElement("div");
-    actions.className = "roomCardActions";
 
     const del = document.createElement("button");
     del.className = "btn btnGhost";
@@ -144,7 +160,7 @@ function optionsByCategory(categoryId) {
   return state.data.options.filter(o => o.categoryId === categoryId);
 }
 
-function getRoomBaseTotal(room) {
+function getRoomBaseTotalExVat(room) {
   let total = 0;
 
   for (const [optionId, qty] of Object.entries(room.qty)) {
@@ -153,7 +169,7 @@ function getRoomBaseTotal(room) {
     total += opt.price * (qty || 0);
   }
 
-  for (const [groupId, optionId] of Object.entries(room.choice)) {
+  for (const optionId of Object.values(room.choice)) {
     const opt = optionById(optionId);
     if (!opt) continue;
     total += opt.price;
@@ -198,11 +214,10 @@ function projectHasAnyTags(tagList) {
   return tagList.some(t => (tally.get(t) || 0) > 0);
 }
 
-function computeRuleAddOns() {
+function computeRuleAddOnsExVat() {
   const rules = state.data.rules || {};
   const addOns = [];
 
-  // Network allowance per room if room has needs_network
   if (rules.networkAllowance) {
     const r = rules.networkAllowance;
     let countRooms = 0;
@@ -213,13 +228,12 @@ function computeRuleAddOns() {
       addOns.push({
         id: "networkAllowance",
         label: r.label,
-        amount: (r.amountPerRoom || 0) * countRooms,
+        amountExVat: (r.amountPerRoom || 0) * countRooms,
         detail: `${countRooms} room${countRooms === 1 ? "" : "s"}`
       });
     }
   }
 
-  // Rack allowance once if project has needs_rack, plus per rack_unit count
   if (rules.rackAllowance) {
     const r = rules.rackAllowance;
     const applies = projectHasAnyTags(r.appliesIfProjectHasAnyTags || []);
@@ -228,12 +242,12 @@ function computeRuleAddOns() {
       const unitTag = r.rackUnitTag || "rack_unit";
       const units = tally.get(unitTag) || 0;
 
-      const amount = (r.baseAmount || 0) + (r.amountPerRackUnitTag || 0) * units;
+      const amountExVat = (r.baseAmount || 0) + (r.amountPerRackUnitTag || 0) * units;
 
       addOns.push({
         id: "rackAllowance",
         label: r.label,
-        amount,
+        amountExVat,
         detail: `${units} rack unit${units === 1 ? "" : "s"}`
       });
     }
@@ -245,30 +259,44 @@ function computeRuleAddOns() {
 function computeTotals() {
   const roomTotals = state.rooms.map(r => ({
     roomId: r.id,
-    base: getRoomBaseTotal(r)
+    baseExVat: getRoomBaseTotalExVat(r)
   }));
 
-  const addOns = computeRuleAddOns();
+  const addOns = computeRuleAddOnsExVat();
 
-  const baseTotal = roomTotals.reduce((a, b) => a + b.base, 0);
-  const addOnTotal = addOns.reduce((a, b) => a + b.amount, 0);
+  const baseTotalExVat = roomTotals.reduce((a, b) => a + b.baseExVat, 0);
+  const addOnTotalExVat = addOns.reduce((a, b) => a + b.amountExVat, 0);
 
-  const overall = baseTotal + addOnTotal;
+  const subTotalExVat = baseTotalExVat + addOnTotalExVat;
+  const vatAmount = subTotalExVat * vatRate();
+  const totalIncVat = subTotalExVat + vatAmount;
 
-  return { roomTotals, addOns, baseTotal, addOnTotal, overall };
+  return {
+    roomTotals,
+    addOns,
+    baseTotalExVat,
+    addOnTotalExVat,
+    subTotalExVat,
+    vatAmount,
+    totalIncVat
+  };
 }
 
 function updateTotalsUI() {
   const totals = computeTotals();
   const activeRoom = state.rooms[state.activeRoomIndex];
 
-  byId("overallTotal").textContent = money(totals.overall);
+  const overall = state.includeVat ? totals.totalIncVat : totals.subTotalExVat;
+  byId("overallTotal").textContent = money(overall);
 
   if (activeRoom) {
-    byId("roomTotal").textContent = money(getRoomBaseTotal(activeRoom));
+    const roomExVat = getRoomBaseTotalExVat(activeRoom);
+    byId("roomTotal").textContent = money(applyVat(roomExVat));
   } else {
     byId("roomTotal").textContent = money(0);
   }
+
+  setVatModeUI();
 }
 
 function renderActiveRoom() {
@@ -316,7 +344,8 @@ function renderOptionRow(room, opt) {
 
   const price = document.createElement("div");
   price.className = "optionPrice";
-  price.textContent = `${money(opt.price)}${opt.inputType === "qty" ? " each" : ""}`;
+  const displayPrice = applyVat(opt.price);
+  price.textContent = `${money(displayPrice)}${opt.inputType === "qty" ? " each" : ""}`;
 
   main.appendChild(label);
   main.appendChild(price);
@@ -394,9 +423,11 @@ function renderOptionRow(room, opt) {
 function renderSummary() {
   const roomsWrap = byId("summaryRooms");
   const rulesWrap = byId("summaryRules");
+  const totalsWrap = byId("summaryTotals");
 
   roomsWrap.innerHTML = "";
   rulesWrap.innerHTML = "";
+  totalsWrap.innerHTML = "";
 
   const totals = computeTotals();
 
@@ -412,7 +443,7 @@ function renderSummary() {
 
     const right = document.createElement("div");
     right.style.fontSize = "14px";
-    right.textContent = money(getRoomBaseTotal(room));
+    right.textContent = money(applyVat(getRoomBaseTotalExVat(room)));
 
     head.appendChild(left);
     head.appendChild(right);
@@ -421,23 +452,23 @@ function renderSummary() {
     const list = document.createElement("div");
     list.className = "summaryList";
 
-    // Qty items
     for (const [optionId, qty] of Object.entries(room.qty)) {
       const opt = optionById(optionId);
       if (!opt) continue;
       const line = document.createElement("div");
       line.className = "summaryLine";
-      line.innerHTML = `<div>${opt.label} × ${qty}</div><div>${money(opt.price * qty)}</div>`;
+      const lineAmount = applyVat(opt.price * qty);
+      line.innerHTML = `<div>${opt.label} × ${qty}</div><div>${money(lineAmount)}</div>`;
       list.appendChild(line);
     }
 
-    // Choice items
     for (const optionId of Object.values(room.choice)) {
       const opt = optionById(optionId);
       if (!opt) continue;
       const line = document.createElement("div");
       line.className = "summaryLine";
-      line.innerHTML = `<div>${opt.label}</div><div>${money(opt.price)}</div>`;
+      const lineAmount = applyVat(opt.price);
+      line.innerHTML = `<div>${opt.label}</div><div>${money(lineAmount)}</div>`;
       list.appendChild(line);
     }
 
@@ -452,13 +483,12 @@ function renderSummary() {
     roomsWrap.appendChild(block);
   }
 
-  // Rules
   if (totals.addOns.length) {
     for (const a of totals.addOns) {
       const line = document.createElement("div");
       line.className = "summaryLine";
       const detail = a.detail ? ` <span class="summaryLineMuted">(${a.detail})</span>` : "";
-      line.innerHTML = `<div>${a.label}${detail}</div><div>${money(a.amount)}</div>`;
+      line.innerHTML = `<div>${a.label}${detail}</div><div>${money(applyVat(a.amountExVat))}</div>`;
       rulesWrap.appendChild(line);
     }
   } else {
@@ -467,6 +497,22 @@ function renderSummary() {
     empty.textContent = "No add ons applied";
     rulesWrap.appendChild(empty);
   }
+
+  const sub = document.createElement("div");
+  sub.className = "summaryLine";
+  sub.innerHTML = `<div>Subtotal (ex VAT)</div><div>${money(totals.subTotalExVat)}</div>`;
+  totalsWrap.appendChild(sub);
+
+  const vatLine = document.createElement("div");
+  vatLine.className = "summaryLine";
+  vatLine.innerHTML = `<div>VAT (${Math.round(vatRate() * 100)}%)</div><div>${money(totals.vatAmount)}</div>`;
+  totalsWrap.appendChild(vatLine);
+
+  const totalLine = document.createElement("div");
+  totalLine.className = "summaryLine";
+  const totalDisplay = state.includeVat ? totals.totalIncVat : totals.subTotalExVat;
+  totalLine.innerHTML = `<div>Total (${state.includeVat ? "inc VAT" : "ex VAT"})</div><div>${money(totalDisplay)}</div>`;
+  totalsWrap.appendChild(totalLine);
 
   updateTotalsUI();
 }
@@ -501,6 +547,13 @@ function wireEvents() {
   byId("reviewBtn").addEventListener("click", () => showStep(3));
   byId("editBtn").addEventListener("click", () => showStep(2));
   byId("printBtn").addEventListener("click", () => window.print());
+
+  byId("vatToggle").addEventListener("change", e => {
+    state.includeVat = Boolean(e.target.checked);
+    if (state.step === 2) renderActiveRoom();
+    if (state.step === 3) renderSummary();
+    updateTotalsUI();
+  });
 }
 
 async function loadData() {
@@ -513,6 +566,7 @@ async function main() {
   await loadData();
   initRoomTypeSelect();
   wireEvents();
+  setVatModeUI();
   showStep(1);
 }
 
