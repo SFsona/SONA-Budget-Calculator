@@ -24,7 +24,6 @@
 body {
   margin: 0;
   color: var(--text);
-  /* set your Adobe font family name here */
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   background: radial-gradient(1200px 800px at 20% 20%, var(--bg3), transparent 60%),
               radial-gradient(900px 700px at 80% 30%, var(--bg2), transparent 55%),
@@ -36,7 +35,8 @@ body {
 .topbar {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: 12px;
   padding: 18px 18px 0 18px;
 }
 
@@ -56,6 +56,73 @@ body {
   color: var(--muted);
 }
 
+.topRight {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.vatToggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--stroke);
+  border-radius: 14px;
+  background: var(--card2);
+  user-select: none;
+}
+
+.vatText {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 46px;
+  height: 26px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid var(--stroke);
+  transition: 140ms ease;
+  border-radius: 999px;
+}
+
+.slider:before {
+  content: "";
+  position: absolute;
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  top: 2px;
+  background: rgba(255, 255, 255, 0.92);
+  transition: 140ms ease;
+  border-radius: 999px;
+}
+
+.switch input:checked + .slider {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.switch input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
 .totals {
   display: grid;
   gap: 6px;
@@ -70,7 +137,13 @@ body {
   align-items: baseline;
   justify-content: space-between;
   gap: 10px;
-  min-width: 180px;
+  min-width: 200px;
+}
+
+.totalsRowSmall {
+  padding-top: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
+  margin-top: 2px;
 }
 
 .totalsLabel {
@@ -192,14 +265,9 @@ body {
 
 .btnPrimary:hover { background: rgba(255, 255, 255, 0.86); }
 
-.btnGhost {
-  background: transparent;
-}
+.btnGhost { background: transparent; }
 
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .hidden { display: none !important; }
 
@@ -220,13 +288,9 @@ body {
   background: rgba(255, 255, 255, 0.06);
 }
 
-.roomCardLeft {
-  text-align: left;
-}
+.roomCardLeft { text-align: left; }
 
-.roomCardTitle {
-  font-size: 14px;
-}
+.roomCardTitle { font-size: 14px; }
 
 .roomCardMeta {
   font-size: 12px;
@@ -247,10 +311,7 @@ body {
   background: rgba(255, 255, 255, 0.06);
 }
 
-.roomTitle {
-  font-size: 18px;
-  text-align: left;
-}
+.roomTitle { font-size: 18px; text-align: left; }
 
 .roomMeta {
   font-size: 12px;
@@ -259,11 +320,7 @@ body {
   margin-top: 2px;
 }
 
-.roomNav {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
+.roomNav { display: flex; gap: 8px; flex-wrap: wrap; }
 
 .optionsWrap {
   display: grid;
@@ -297,25 +354,13 @@ body {
   margin-bottom: 8px;
 }
 
-.optionMain {
-  display: grid;
-  gap: 4px;
-}
+.optionMain { display: grid; gap: 4px; }
 
-.optionLabel {
-  font-size: 14px;
-}
+.optionLabel { font-size: 14px; }
 
-.optionPrice {
-  font-size: 12px;
-  color: var(--muted);
-}
+.optionPrice { font-size: 12px; color: var(--muted); }
 
-.qty {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
+.qty { display: flex; gap: 8px; align-items: center; }
 
 .qtyBtn {
   width: 34px;
@@ -327,17 +372,9 @@ body {
   cursor: pointer;
 }
 
-.qtyValue {
-  min-width: 26px;
-  text-align: center;
-  font-size: 14px;
-}
+.qtyValue { min-width: 26px; text-align: center; font-size: 14px; }
 
-.choice {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
+.choice { display: flex; gap: 10px; align-items: center; }
 
 .choice input { transform: scale(1.15); }
 
@@ -358,10 +395,7 @@ body {
   margin-bottom: 8px;
 }
 
-.summaryList {
-  display: grid;
-  gap: 8px;
-}
+.summaryList { display: grid; gap: 8px; }
 
 .summaryLine {
   display: flex;
@@ -375,7 +409,7 @@ body {
 
 @media print {
   body { background: #ffffff; color: #111; }
-  .topbar, .navRow, .btn, .roomNav { display: none !important; }
+  .topbar, .navRow, .btn, .roomNav, .vatToggle { display: none !important; }
   .card { border: none; background: transparent; }
   .summaryBlock { border: 1px solid #ddd; background: transparent; }
 }
