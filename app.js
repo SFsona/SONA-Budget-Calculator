@@ -436,6 +436,7 @@ function renderSummary() {
     for (const [optionId, qty] of Object.entries(room.qty)) {
       const opt = optionById(optionId);
       if (!opt) continue;
+
       const line = document.createElement("div");
       line.className = "summaryLine";
       line.innerHTML = `<div>${opt.label} × ${qty}</div><div>${money(applyVat(opt.price * qty))}</div>`;
@@ -445,6 +446,7 @@ function renderSummary() {
     for (const optionId of Object.values(room.choice)) {
       const opt = optionById(optionId);
       if (!opt) continue;
+
       const line = document.createElement("div");
       line.className = "summaryLine";
       line.innerHTML = `<div>${opt.label}</div><div>${money(applyVat(opt.price))}</div>`;
@@ -466,8 +468,10 @@ function renderSummary() {
     for (const a of totals.addOns) {
       const line = document.createElement("div");
       line.className = "summaryLine";
+
       const detail = a.detail ? ` <span class="summaryLineMuted">(${a.detail})</span>` : "";
       line.innerHTML = `<div>${a.label}${detail}</div><div>${money(applyVat(a.amountExVat))}</div>`;
+
       rulesWrap.appendChild(line);
     }
   } else {
@@ -495,6 +499,7 @@ function renderSummary() {
 
   updateTotalsUI();
 }
+
 
 function wireEvents() {
   byId("addRoomBtn").addEventListener("click", addRoom);
