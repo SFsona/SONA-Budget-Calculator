@@ -50,9 +50,11 @@ body {
 }
 
 .brandLogo {
-  height: 22px;
+  height: 24px;
   width: auto;
+  max-width: none;
   display: block;
+  object-fit: contain;
 }
 
 .brandMark {
