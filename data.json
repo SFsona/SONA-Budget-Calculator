@@ -17,7 +17,8 @@
     { "id": "shading", "label": "Shading" },
     { "id": "audio", "label": "Audio" },
     { "id": "video", "label": "Video" },
-    { "id": "cinema", "label": "Cinema" }
+    { "id": "media_system", "label": "Media system" }
+
   ],
   "options": [
     { "id": "lc_keypad_essential", "categoryId": "lighting_control", "label": "Essential keypad", "inputType": "qty", "price": 216, "tags": [] },
