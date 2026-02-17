@@ -451,7 +451,6 @@ function renderSummary() {
     const list = document.createElement("div");
     list.className = "summaryList";
 
-    // Qty options with per room add ons
     for (const [optionId, qty] of Object.entries(room.qty)) {
       const opt = optionById(optionId);
       if (!opt) continue;
@@ -475,7 +474,6 @@ function renderSummary() {
       }
     }
 
-    // Choice options
     for (const optionId of Object.values(room.choice)) {
       const opt = optionById(optionId);
       if (!opt) continue;
@@ -497,7 +495,6 @@ function renderSummary() {
     roomsWrap.appendChild(block);
   }
 
-  // Project add ons (network, rack)
   if (totals.addOns.length) {
     for (const a of totals.addOns) {
       const line = document.createElement("div");
@@ -513,7 +510,6 @@ function renderSummary() {
     rulesWrap.appendChild(empty);
   }
 
-  // Totals
   const sub = document.createElement("div");
   sub.className = "summaryLine";
   sub.innerHTML = `<div>Subtotal (ex VAT)</div><div>${money(totals.subTotalExVat)}</div>`;
@@ -532,6 +528,7 @@ function renderSummary() {
 
   updateTotalsUI();
 }
+
 
 
 
