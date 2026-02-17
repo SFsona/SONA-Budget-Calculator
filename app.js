@@ -3,10 +3,13 @@
    Prices stored ex VAT
 
    Range families support
-   Certain option groups can be entered as a single qty and displayed as a low–high range.
+   Certain option groups can be entered as a single qty and displayed as a low to high range.
    Requires data.json to include:
      - rangeFamilies: [{ id, label, categoryId, sourceOptionIds, tagsPerFamily?, tagsPerUnit? }, ...]
-   Also supports category rename of Cinema to Media system (recommended id: media_system).
+
+   Includes a UI switch to toggle between:
+     - Range mode (single qty + range) for rangeFamilies
+     - Detailed mode (individual tier options)
 */
 
 const state = {
@@ -14,7 +17,8 @@ const state = {
   step: 1,
   rooms: [],
   activeRoomIndex: 0,
-  includeVat: false
+  includeVat: false,
+  useRanges: true
 };
 
 function byId(id) {
@@ -168,7 +172,7 @@ function optionsByCategory(categoryId) {
   return state.data.options.filter(o => o.categoryId === categoryId);
 }
 
-/* -------- Range families helpers -------- */
+/* Range families helpers */
 
 function rangeFamilies() {
   return state.data?.rangeFamilies || [];
@@ -196,7 +200,7 @@ function optionIsHiddenByRangeFamilies(opt) {
   return false;
 }
 
-/* -------- Totals -------- */
+/* Totals */
 
 function computeRoomOptionAddonExVat(opt, qty) {
   if (!opt || !opt.roomAddon) return 0;
@@ -236,27 +240,26 @@ function getRoomBaseTotalsExVat(room) {
     high += opt.price;
   }
 
-  // Range families
-  for (const fam of rangeFamilies()) {
-    const q = Math.max(0, Number(room.rangeQty?.[fam.id] || 0));
-    if (!q) continue;
+  // Range families only when enabled
+  if (state.useRanges) {
+    for (const fam of rangeFamilies()) {
+      const q = Math.max(0, Number(room.rangeQty?.[fam.id] || 0));
+      if (!q) continue;
 
-    const mm = rangeFamilyMinMaxPriceExVat(fam);
-    low += mm.min * q;
-    high += mm.max * q;
+      const mm = rangeFamilyMinMaxPriceExVat(fam);
+      low += mm.min * q;
+      high += mm.max * q;
+    }
   }
 
   return { low, high };
 }
 
-/* Kept for backward compatibility in places where it was used.
-   Not used for display any more, but useful as a single number.
-*/
 function getRoomBaseTotalExVat(room) {
   return getRoomBaseTotalsExVat(room).high;
 }
 
-/* -------- Tags and rules -------- */
+/* Tags and rules */
 
 function getRoomTags(room) {
   const tags = [];
@@ -276,15 +279,17 @@ function getRoomTags(room) {
     tags.push(...(opt.tags || []));
   }
 
-  // Range families: tags per family (once) and tags per unit (qty times)
-  for (const fam of rangeFamilies()) {
-    const q = Math.max(0, Number(room.rangeQty?.[fam.id] || 0));
-    if (!q) continue;
+  // Range families only when enabled
+  if (state.useRanges) {
+    for (const fam of rangeFamilies()) {
+      const q = Math.max(0, Number(room.rangeQty?.[fam.id] || 0));
+      if (!q) continue;
 
-    tags.push(...(fam.tagsPerFamily || []));
+      tags.push(...(fam.tagsPerFamily || []));
 
-    for (let i = 0; i < q; i++) {
-      tags.push(...(fam.tagsPerUnit || []));
+      for (let i = 0; i < q; i++) {
+        tags.push(...(fam.tagsPerUnit || []));
+      }
     }
   }
 
@@ -403,7 +408,7 @@ function updateTotalsUI() {
   setVatModeUI();
 }
 
-/* -------- Options UI -------- */
+/* Options UI */
 
 function renderActiveRoom() {
   const room = state.rooms[state.activeRoomIndex];
@@ -417,9 +422,14 @@ function renderActiveRoom() {
 
   for (const cat of state.data.categories) {
     const fams = rangeFamiliesByCategory(cat.id);
-    const opts = optionsByCategory(cat.id).filter(o => !optionIsHiddenByRangeFamilies(o));
 
-    if (!fams.length && !opts.length) continue;
+    const opts = optionsByCategory(cat.id).filter(o => {
+      if (!state.useRanges) return true;
+      return !optionIsHiddenByRangeFamilies(o);
+    });
+
+    if ((!state.useRanges || !fams.length) && !opts.length) continue;
+    if (state.useRanges && !fams.length && !opts.length) continue;
 
     const section = document.createElement("div");
     section.className = "category";
@@ -429,17 +439,19 @@ function renderActiveRoom() {
     h.textContent = cat.label;
     section.appendChild(h);
 
-    // Range families first
-    for (const fam of fams) {
-      section.appendChild(renderRangeFamilyRow(room, fam));
+    if (state.useRanges) {
+      for (const fam of fams) {
+        section.appendChild(renderRangeFamilyRow(room, fam));
+      }
     }
 
-    // Normal options
     for (const opt of opts) {
       section.appendChild(renderOptionRow(room, opt));
     }
 
-    wrap.appendChild(section);
+    if (section.children.length > 1) {
+      wrap.appendChild(section);
+    }
   }
 
   updateTotalsUI();
@@ -599,7 +611,7 @@ function renderRangeFamilyRow(room, fam) {
   return row;
 }
 
-/* -------- Summary -------- */
+/* Summary */
 
 function renderSummary() {
   const roomsWrap = byId("summaryRooms");
@@ -671,19 +683,21 @@ function renderSummary() {
       list.appendChild(line);
     }
 
-    // Range family selections
-    for (const fam of rangeFamilies()) {
-      const q = Math.max(0, Number(room.rangeQty?.[fam.id] || 0));
-      if (!q) continue;
+    // Range family selections only when enabled
+    if (state.useRanges) {
+      for (const fam of rangeFamilies()) {
+        const q = Math.max(0, Number(room.rangeQty?.[fam.id] || 0));
+        if (!q) continue;
 
-      const mm = rangeFamilyMinMaxPriceExVat(fam);
-      const low = applyVat(mm.min * q);
-      const high = applyVat(mm.max * q);
+        const mm = rangeFamilyMinMaxPriceExVat(fam);
+        const low = applyVat(mm.min * q);
+        const high = applyVat(mm.max * q);
 
-      const line = document.createElement("div");
-      line.className = "summaryLine";
-      line.innerHTML = `<div>${fam.label} × ${q}</div><div>${moneyRangeDisplay(low, high)}</div>`;
-      list.appendChild(line);
+        const line = document.createElement("div");
+        line.className = "summaryLine";
+        line.innerHTML = `<div>${fam.label} × ${q}</div><div>${moneyRangeDisplay(low, high)}</div>`;
+        list.appendChild(line);
+      }
     }
 
     if (!list.children.length) {
@@ -738,7 +752,7 @@ function renderSummary() {
   updateTotalsUI();
 }
 
-/* -------- Events and boot -------- */
+/* Events and boot */
 
 function wireEvents() {
   byId("addRoomBtn").addEventListener("click", addRoom);
@@ -777,6 +791,16 @@ function wireEvents() {
     if (state.step === 3) renderSummary();
     updateTotalsUI();
   });
+
+  const rangeToggle = byId("rangeToggle");
+  if (rangeToggle) {
+    rangeToggle.addEventListener("change", e => {
+      state.useRanges = Boolean(e.target.checked);
+      if (state.step === 2) renderActiveRoom();
+      if (state.step === 3) renderSummary();
+      updateTotalsUI();
+    });
+  }
 }
 
 async function loadData() {
@@ -789,6 +813,13 @@ async function main() {
   await loadData();
   initRoomTypeSelect();
   wireEvents();
+
+  const rangeToggle = byId("rangeToggle");
+  if (rangeToggle) {
+    rangeToggle.checked = true;
+    state.useRanges = true;
+  }
+
   setVatModeUI();
   showStep(1);
 }
