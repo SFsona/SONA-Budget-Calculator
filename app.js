@@ -451,16 +451,31 @@ function renderSummary() {
     const list = document.createElement("div");
     list.className = "summaryList";
 
+    // Qty options with per room add ons
     for (const [optionId, qty] of Object.entries(room.qty)) {
       const opt = optionById(optionId);
       if (!opt) continue;
 
+      const q = Number(qty || 0);
+
       const line = document.createElement("div");
       line.className = "summaryLine";
-      line.innerHTML = `<div>${opt.label} × ${qty}</div><div>${money(applyVat(opt.price * qty))}</div>`;
+      line.innerHTML = `<div>${opt.label} × ${q}</div><div>${money(applyVat(opt.price * q))}</div>`;
       list.appendChild(line);
+
+      const addon = computeRoomOptionAddonExVat(opt, q);
+      if (addon > 0) {
+        const blocks = Math.ceil(q / Number(opt.roomAddon.every));
+        const addonLine = document.createElement("div");
+        addonLine.className = "summaryLine summaryLineMuted";
+        addonLine.innerHTML =
+          `<div>Driver allowance for ${opt.label} (${blocks} × ${money(applyVat(Number(opt.roomAddon.amount)))})</div>` +
+          `<div>${money(applyVat(addon))}</div>`;
+        list.appendChild(addonLine);
+      }
     }
 
+    // Choice options
     for (const optionId of Object.values(room.choice)) {
       const opt = optionById(optionId);
       if (!opt) continue;
@@ -482,14 +497,13 @@ function renderSummary() {
     roomsWrap.appendChild(block);
   }
 
+  // Project add ons (network, rack)
   if (totals.addOns.length) {
     for (const a of totals.addOns) {
       const line = document.createElement("div");
       line.className = "summaryLine";
-
       const detail = a.detail ? ` <span class="summaryLineMuted">(${a.detail})</span>` : "";
       line.innerHTML = `<div>${a.label}${detail}</div><div>${money(applyVat(a.amountExVat))}</div>`;
-
       rulesWrap.appendChild(line);
     }
   } else {
@@ -499,6 +513,7 @@ function renderSummary() {
     rulesWrap.appendChild(empty);
   }
 
+  // Totals
   const sub = document.createElement("div");
   sub.className = "summaryLine";
   sub.innerHTML = `<div>Subtotal (ex VAT)</div><div>${money(totals.subTotalExVat)}</div>`;
@@ -517,6 +532,7 @@ function renderSummary() {
 
   updateTotalsUI();
 }
+
 
 
 function wireEvents() {
