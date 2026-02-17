@@ -159,10 +159,15 @@ function getRoomBaseTotalExVat(room) {
   let total = 0;
 
   for (const [optionId, qty] of Object.entries(room.qty)) {
-    const opt = optionById(optionId);
-    if (!opt) continue;
-    total += opt.price * Number(qty || 0);
-  }
+  const opt = optionById(optionId);
+  if (!opt) continue;
+
+  const q = Number(qty || 0);
+  total += opt.price * q;
+
+  total += computeRoomOptionAddonExVat(opt, q);
+}
+
 
   for (const optionId of Object.values(room.choice)) {
     const opt = optionById(optionId);
@@ -172,6 +177,19 @@ function getRoomBaseTotalExVat(room) {
 
   return total;
 }
+
+function computeRoomOptionAddonExVat(opt, qty) {
+  if (!opt || !opt.roomAddon) return 0;
+
+  const every = Number(opt.roomAddon.every || 0);
+  const amount = Number(opt.roomAddon.amount || 0);
+  const q = Number(qty || 0);
+
+  if (every <= 0 || amount <= 0 || q <= 0) return 0;
+
+  return Math.ceil(q / every) * amount;
+}
+
 
 function getRoomTags(room) {
   const tags = [];
