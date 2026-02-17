@@ -71,13 +71,18 @@ body {
   color: var(--muted);
 }
 
-.topRight {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
+.topRight{
+  display:flex;
+  align-items:center;
+  gap:16px;
 }
+
+.topToggles{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
 
 .vatToggle {
   display: flex;
