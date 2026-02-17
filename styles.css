@@ -178,6 +178,11 @@ body {
   padding: 16px;
 }
 
+.invisible {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .center {
   text-align: center;
   padding: 6px 6px 14px 6px;
