@@ -1,6 +1,12 @@
 /* SONA Budget Calculator v1
    Data driven via data.json
    Prices stored ex VAT
+
+   Range families support
+   Certain option groups can be entered as a single qty and displayed as a low–high range.
+   Requires data.json to include:
+     - rangeFamilies: [{ id, label, categoryId, sourceOptionIds, tagsPerFamily?, tagsPerUnit? }, ...]
+   Also supports category rename of Cinema to Media system (recommended id: media_system).
 */
 
 const state = {
@@ -31,6 +37,12 @@ function money(value) {
 
 function applyVat(amountExVat) {
   return state.includeVat ? amountExVat * (1 + vatRate()) : amountExVat;
+}
+
+function moneyRangeDisplay(low, high) {
+  const a = money(low);
+  const b = money(high);
+  return low === high ? a : `${a} to ${b}`;
 }
 
 function setVatModeUI() {
@@ -83,7 +95,8 @@ function newRoom(name, type) {
     name,
     type,
     qty: {},
-    choice: {}
+    choice: {},
+    rangeQty: {}
   };
 }
 
@@ -155,28 +168,35 @@ function optionsByCategory(categoryId) {
   return state.data.options.filter(o => o.categoryId === categoryId);
 }
 
-function getRoomBaseTotalExVat(room) {
-  let total = 0;
+/* -------- Range families helpers -------- */
 
-  for (const [optionId, qty] of Object.entries(room.qty)) {
-  const opt = optionById(optionId);
-  if (!opt) continue;
-
-  const q = Number(qty || 0);
-  total += opt.price * q;
-
-  total += computeRoomOptionAddonExVat(opt, q);
+function rangeFamilies() {
+  return state.data?.rangeFamilies || [];
 }
 
+function rangeFamiliesByCategory(categoryId) {
+  return rangeFamilies().filter(f => f.categoryId === categoryId);
+}
 
-  for (const optionId of Object.values(room.choice)) {
-    const opt = optionById(optionId);
-    if (!opt) continue;
-    total += opt.price;
+function rangeFamilyMinMaxPriceExVat(family) {
+  const prices = (family.sourceOptionIds || [])
+    .map(id => optionById(id))
+    .filter(Boolean)
+    .map(o => Number(o.price || 0));
+
+  if (!prices.length) return { min: 0, max: 0 };
+
+  return { min: Math.min(...prices), max: Math.max(...prices) };
+}
+
+function optionIsHiddenByRangeFamilies(opt) {
+  for (const fam of rangeFamilies()) {
+    if ((fam.sourceOptionIds || []).includes(opt.id)) return true;
   }
-
-  return total;
+  return false;
 }
+
+/* -------- Totals -------- */
 
 function computeRoomOptionAddonExVat(opt, qty) {
   if (!opt || !opt.roomAddon) return 0;
@@ -190,10 +210,58 @@ function computeRoomOptionAddonExVat(opt, qty) {
   return Math.ceil(q / every) * amount;
 }
 
+function getRoomBaseTotalsExVat(room) {
+  let low = 0;
+  let high = 0;
+
+  // Fixed qty options
+  for (const [optionId, qty] of Object.entries(room.qty)) {
+    const opt = optionById(optionId);
+    if (!opt) continue;
+
+    const q = Number(qty || 0);
+    const line = opt.price * q;
+    const addon = computeRoomOptionAddonExVat(opt, q);
+
+    low += line + addon;
+    high += line + addon;
+  }
+
+  // Fixed choice options
+  for (const optionId of Object.values(room.choice)) {
+    const opt = optionById(optionId);
+    if (!opt) continue;
+
+    low += opt.price;
+    high += opt.price;
+  }
+
+  // Range families
+  for (const fam of rangeFamilies()) {
+    const q = Math.max(0, Number(room.rangeQty?.[fam.id] || 0));
+    if (!q) continue;
+
+    const mm = rangeFamilyMinMaxPriceExVat(fam);
+    low += mm.min * q;
+    high += mm.max * q;
+  }
+
+  return { low, high };
+}
+
+/* Kept for backward compatibility in places where it was used.
+   Not used for display any more, but useful as a single number.
+*/
+function getRoomBaseTotalExVat(room) {
+  return getRoomBaseTotalsExVat(room).high;
+}
+
+/* -------- Tags and rules -------- */
 
 function getRoomTags(room) {
   const tags = [];
 
+  // Existing qty options: tags per unit
   for (const [optionId, qty] of Object.entries(room.qty)) {
     const opt = optionById(optionId);
     if (!opt) continue;
@@ -201,10 +269,23 @@ function getRoomTags(room) {
     for (let i = 0; i < count; i++) tags.push(...(opt.tags || []));
   }
 
+  // Existing choice options: tags once
   for (const optionId of Object.values(room.choice)) {
     const opt = optionById(optionId);
     if (!opt) continue;
     tags.push(...(opt.tags || []));
+  }
+
+  // Range families: tags per family (once) and tags per unit (qty times)
+  for (const fam of rangeFamilies()) {
+    const q = Math.max(0, Number(room.rangeQty?.[fam.id] || 0));
+    if (!q) continue;
+
+    tags.push(...(fam.tagsPerFamily || []));
+
+    for (let i = 0; i < q; i++) {
+      tags.push(...(fam.tagsPerUnit || []));
+    }
   }
 
   return tags;
@@ -272,31 +353,57 @@ function computeRuleAddOnsExVat() {
 function computeTotals() {
   const addOns = computeRuleAddOnsExVat();
 
-  const baseTotalExVat = state.rooms.reduce((sum, r) => sum + getRoomBaseTotalExVat(r), 0);
+  const roomTotals = state.rooms.map(r => getRoomBaseTotalsExVat(r));
+
+  const baseLow = roomTotals.reduce((sum, t) => sum + t.low, 0);
+  const baseHigh = roomTotals.reduce((sum, t) => sum + t.high, 0);
+
   const addOnTotalExVat = addOns.reduce((sum, a) => sum + a.amountExVat, 0);
 
-  const subTotalExVat = baseTotalExVat + addOnTotalExVat;
-  const vatAmount = subTotalExVat * vatRate();
-  const totalIncVat = subTotalExVat + vatAmount;
+  const subLow = baseLow + addOnTotalExVat;
+  const subHigh = baseHigh + addOnTotalExVat;
 
-  return { addOns, baseTotalExVat, addOnTotalExVat, subTotalExVat, vatAmount, totalIncVat };
+  const vatLow = subLow * vatRate();
+  const vatHigh = subHigh * vatRate();
+
+  const totalIncLow = subLow + vatLow;
+  const totalIncHigh = subHigh + vatHigh;
+
+  return {
+    addOns,
+    baseTotalExVatLow: baseLow,
+    baseTotalExVatHigh: baseHigh,
+    addOnTotalExVat,
+    subTotalExVatLow: subLow,
+    subTotalExVatHigh: subHigh,
+    vatAmountLow: vatLow,
+    vatAmountHigh: vatHigh,
+    totalIncVatLow: totalIncLow,
+    totalIncVatHigh: totalIncHigh
+  };
 }
 
 function updateTotalsUI() {
   const totals = computeTotals();
   const activeRoom = state.rooms[state.activeRoomIndex];
 
-  const overall = state.includeVat ? totals.totalIncVat : totals.subTotalExVat;
-  byId("overallTotal").textContent = money(overall);
+  const overallLow = state.includeVat ? totals.totalIncVatLow : totals.subTotalExVatLow;
+  const overallHigh = state.includeVat ? totals.totalIncVatHigh : totals.subTotalExVatHigh;
+  byId("overallTotal").textContent = moneyRangeDisplay(overallLow, overallHigh);
 
   if (activeRoom) {
-    byId("roomTotal").textContent = money(applyVat(getRoomBaseTotalExVat(activeRoom)));
+    const rt = getRoomBaseTotalsExVat(activeRoom);
+    const roomLow = applyVat(rt.low);
+    const roomHigh = applyVat(rt.high);
+    byId("roomTotal").textContent = moneyRangeDisplay(roomLow, roomHigh);
   } else {
     byId("roomTotal").textContent = money(0);
   }
 
   setVatModeUI();
 }
+
+/* -------- Options UI -------- */
 
 function renderActiveRoom() {
   const room = state.rooms[state.activeRoomIndex];
@@ -309,8 +416,10 @@ function renderActiveRoom() {
   wrap.innerHTML = "";
 
   for (const cat of state.data.categories) {
-    const opts = optionsByCategory(cat.id);
-    if (!opts.length) continue;
+    const fams = rangeFamiliesByCategory(cat.id);
+    const opts = optionsByCategory(cat.id).filter(o => !optionIsHiddenByRangeFamilies(o));
+
+    if (!fams.length && !opts.length) continue;
 
     const section = document.createElement("div");
     section.className = "category";
@@ -320,6 +429,12 @@ function renderActiveRoom() {
     h.textContent = cat.label;
     section.appendChild(h);
 
+    // Range families first
+    for (const fam of fams) {
+      section.appendChild(renderRangeFamilyRow(room, fam));
+    }
+
+    // Normal options
     for (const opt of opts) {
       section.appendChild(renderOptionRow(room, opt));
     }
@@ -417,6 +532,75 @@ function renderOptionRow(room, opt) {
   return row;
 }
 
+function renderRangeFamilyRow(room, fam) {
+  const row = document.createElement("div");
+  row.className = "optionRow";
+
+  const main = document.createElement("div");
+  main.className = "optionMain";
+
+  const label = document.createElement("div");
+  label.className = "optionLabel";
+  label.textContent = fam.label;
+
+  const mm = rangeFamilyMinMaxPriceExVat(fam);
+  const price = document.createElement("div");
+  price.className = "optionPrice";
+
+  const minEach = applyVat(mm.min);
+  const maxEach = applyVat(mm.max);
+  price.textContent = `${money(minEach)} to ${money(maxEach)} each`;
+
+  main.appendChild(label);
+  main.appendChild(price);
+
+  const control = document.createElement("div");
+  const qtyWrap = document.createElement("div");
+  qtyWrap.className = "qty";
+
+  const minus = document.createElement("button");
+  minus.className = "qtyBtn";
+  minus.type = "button";
+  minus.textContent = "–";
+
+  const val = document.createElement("div");
+  val.className = "qtyValue";
+  val.textContent = String(Math.max(0, Number(room.rangeQty?.[fam.id] || 0)));
+
+  const plus = document.createElement("button");
+  plus.className = "qtyBtn";
+  plus.type = "button";
+  plus.textContent = "+";
+
+  minus.addEventListener("click", () => {
+    const next = Math.max(0, Number(room.rangeQty?.[fam.id] || 0) - 1);
+    if (next === 0) delete room.rangeQty[fam.id];
+    else room.rangeQty[fam.id] = next;
+    val.textContent = String(next);
+    updateTotalsUI();
+  });
+
+  plus.addEventListener("click", () => {
+    const next = Math.max(0, Number(room.rangeQty?.[fam.id] || 0) + 1);
+    room.rangeQty[fam.id] = next;
+    val.textContent = String(next);
+    updateTotalsUI();
+  });
+
+  qtyWrap.appendChild(minus);
+  qtyWrap.appendChild(val);
+  qtyWrap.appendChild(plus);
+
+  control.appendChild(qtyWrap);
+
+  row.appendChild(main);
+  row.appendChild(control);
+
+  return row;
+}
+
+/* -------- Summary -------- */
+
 function renderSummary() {
   const roomsWrap = byId("summaryRooms");
   const rulesWrap = byId("summaryRules");
@@ -442,7 +626,8 @@ function renderSummary() {
 
     const right = document.createElement("div");
     right.style.fontSize = "14px";
-    right.textContent = money(applyVat(getRoomBaseTotalExVat(room)));
+    const rt = getRoomBaseTotalsExVat(room);
+    right.textContent = moneyRangeDisplay(applyVat(rt.low), applyVat(rt.high));
 
     head.appendChild(left);
     head.appendChild(right);
@@ -451,6 +636,7 @@ function renderSummary() {
     const list = document.createElement("div");
     list.className = "summaryList";
 
+    // Fixed qty selections
     for (const [optionId, qty] of Object.entries(room.qty)) {
       const opt = optionById(optionId);
       if (!opt) continue;
@@ -474,6 +660,7 @@ function renderSummary() {
       }
     }
 
+    // Fixed choice selections
     for (const optionId of Object.values(room.choice)) {
       const opt = optionById(optionId);
       if (!opt) continue;
@@ -481,6 +668,21 @@ function renderSummary() {
       const line = document.createElement("div");
       line.className = "summaryLine";
       line.innerHTML = `<div>${opt.label}</div><div>${money(applyVat(opt.price))}</div>`;
+      list.appendChild(line);
+    }
+
+    // Range family selections
+    for (const fam of rangeFamilies()) {
+      const q = Math.max(0, Number(room.rangeQty?.[fam.id] || 0));
+      if (!q) continue;
+
+      const mm = rangeFamilyMinMaxPriceExVat(fam);
+      const low = applyVat(mm.min * q);
+      const high = applyVat(mm.max * q);
+
+      const line = document.createElement("div");
+      line.className = "summaryLine";
+      line.innerHTML = `<div>${fam.label} × ${q}</div><div>${moneyRangeDisplay(low, high)}</div>`;
       list.appendChild(line);
     }
 
@@ -495,6 +697,7 @@ function renderSummary() {
     roomsWrap.appendChild(block);
   }
 
+  // Project add ons
   if (totals.addOns.length) {
     for (const a of totals.addOns) {
       const line = document.createElement("div");
@@ -510,27 +713,32 @@ function renderSummary() {
     rulesWrap.appendChild(empty);
   }
 
+  // Totals (range aware)
   const sub = document.createElement("div");
   sub.className = "summaryLine";
-  sub.innerHTML = `<div>Subtotal (ex VAT)</div><div>${money(totals.subTotalExVat)}</div>`;
+  sub.innerHTML = `<div>Subtotal (ex VAT)</div><div>${moneyRangeDisplay(totals.subTotalExVatLow, totals.subTotalExVatHigh)}</div>`;
   totalsWrap.appendChild(sub);
 
   const vatLine = document.createElement("div");
   vatLine.className = "summaryLine";
-  vatLine.innerHTML = `<div>VAT (${Math.round(vatRate() * 100)}%)</div><div>${money(totals.vatAmount)}</div>`;
+  vatLine.innerHTML = `<div>VAT (${Math.round(vatRate() * 100)}%)</div><div>${moneyRangeDisplay(totals.vatAmountLow, totals.vatAmountHigh)}</div>`;
   totalsWrap.appendChild(vatLine);
 
   const totalLine = document.createElement("div");
   totalLine.className = "summaryLine";
-  const totalDisplay = state.includeVat ? totals.totalIncVat : totals.subTotalExVat;
-  totalLine.innerHTML = `<div>Total (${state.includeVat ? "inc VAT" : "ex VAT"})</div><div>${money(totalDisplay)}</div>`;
+
+  if (state.includeVat) {
+    totalLine.innerHTML = `<div>Total (inc VAT)</div><div>${moneyRangeDisplay(totals.totalIncVatLow, totals.totalIncVatHigh)}</div>`;
+  } else {
+    totalLine.innerHTML = `<div>Total (ex VAT)</div><div>${moneyRangeDisplay(totals.subTotalExVatLow, totals.subTotalExVatHigh)}</div>`;
+  }
+
   totalsWrap.appendChild(totalLine);
 
   updateTotalsUI();
 }
 
-
-
+/* -------- Events and boot -------- */
 
 function wireEvents() {
   byId("addRoomBtn").addEventListener("click", addRoom);
