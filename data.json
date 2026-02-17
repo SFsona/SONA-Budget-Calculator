@@ -30,7 +30,7 @@
     { "id": "lf_downlight_essential", "categoryId": "lighting_fittings", "label": "Essential downlight", "inputType": "qty", "price": 115, "tags": [] },
     { "id": "lf_downlight_signature", "categoryId": "lighting_fittings", "label": "Signature downlight", "inputType": "qty", "price": 135, "tags": [] },
     { "id": "lf_downlight_premium", "categoryId": "lighting_fittings", "label": "Premium downlight", "inputType": "qty", "price": 180, "tags": [] },
-    { "id": "lf_linear_led_m", "categoryId": "lighting_fittings", "label": "Linear LED metres", "inputType": "qty", "price": 50, "tags": [] },
+    { "id": "lf_linear_led_m", "categoryId": "lighting_fittings", "label": "Linear LED metres", "inputType": "qty", "price": 56, "tags": [] },
 
     { "id": "au_zone_essential", "categoryId": "audio", "label": "Essential music zone", "inputType": "qty", "price": 1500, "tags": ["needs_network", "needs_rack", "rack_unit"] },
     { "id": "au_zone_signature", "categoryId": "audio", "label": "Signature music zone", "inputType": "qty", "price": 1800, "tags": ["needs_network", "needs_rack", "rack_unit"] },
