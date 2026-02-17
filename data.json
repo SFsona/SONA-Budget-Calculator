@@ -66,11 +66,58 @@
     { "id": "au_zone_premium", "categoryId": "audio", "label": "Premium music zone", "inputType": "qty", "price": 2800, "tags": ["needs_network", "needs_rack", "rack_unit"] },
     { "id": "au_zone_ultimate", "categoryId": "audio", "label": "Ultimate music zone", "inputType": "qty", "price": 3500, "tags": ["needs_network", "needs_rack", "rack_unit"] },
 
-    { "id": "mc_essential", "categoryId": "cinema", "label": "Essential media system", "inputType": "choice", "groupId": "media_system", "price": 6000, "tags": ["needs_network", "needs_rack", "rack_unit"] },
-    { "id": "mc_signature", "categoryId": "cinema", "label": "Signature media system", "inputType": "choice", "groupId": "media_system", "price": 10000, "tags": ["needs_network", "needs_rack", "rack_unit"] },
-    { "id": "mc_premium", "categoryId": "cinema", "label": "Premium media system", "inputType": "choice", "groupId": "media_system", "price": 15000, "tags": ["needs_network", "needs_rack", "rack_unit"] },
-    { "id": "mc_ultimate", "categoryId": "cinema", "label": "Ultimate media system", "inputType": "choice", "groupId": "media_system", "price": 20000, "tags": ["needs_network", "needs_rack", "rack_unit"] }
+    { "id": "mc_essential", "categoryId": "media_system", "label": "Essential media system", "inputType": "choice", "groupId": "media_system", "price": 6000, "tags": ["needs_network", "needs_rack", "rack_unit"] },
+    { "id": "mc_signature", "categoryId": "media_system", "label": "Signature media system", "inputType": "choice", "groupId": "media_system", "price": 10000, "tags": ["needs_network", "needs_rack", "rack_unit"] },
+    { "id": "mc_premium", "categoryId": "media_system", "label": "Premium media system", "inputType": "choice", "groupId": "media_system", "price": 15000, "tags": ["needs_network", "needs_rack", "rack_unit"] },
+    { "id": "mc_ultimate", "categoryId": "media_system", "label": "Ultimate media system", "inputType": "choice", "groupId": "media_system", "price": 20000, "tags": ["needs_network", "needs_rack", "rack_unit"] }
   ],
+
+  "rangeFamilies": [
+  {
+    "id": "lighting_keypads",
+    "label": "Lighting keypads",
+    "inputType": "qty_range",
+    "categoryId": "lighting_control",
+    "sourceOptionIds": [
+      "lc_keypad_essential",
+      "lc_keypad_signature_keypad_only",
+      "lc_keypad_signature_with_std_circuit",
+      "lc_keypad_premium"
+    ],
+    "tagsPerFamily": [],
+    "tagsPerUnit": []
+  },
+  {
+    "id": "audio_zones",
+    "label": "Audio zones",
+    "inputType": "qty_range",
+    "categoryId": "audio",
+    "sourceOptionIds": [
+      "au_zone_essential",
+      "au_zone_signature",
+      "au_zone_premium",
+      "au_zone_ultimate"
+    ],
+    "tagsPerFamily": ["needs_network", "needs_rack"],
+    "tagsPerUnit": ["rack_unit"]
+  },
+  {
+    "id": "media_systems",
+    "label": "Media systems",
+    "inputType": "qty_range",
+    "categoryId": "media_system",
+    "sourceOptionIds": [
+      "mc_essential",
+      "mc_signature",
+      "mc_premium",
+      "mc_ultimate"
+    ],
+    "tagsPerFamily": ["needs_network", "needs_rack"],
+    "tagsPerUnit": ["rack_unit"]
+  }
+],
+
+  
   "rules": {
     "networkAllowance": {
       "label": "Network allowance",
