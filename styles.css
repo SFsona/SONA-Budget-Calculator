@@ -402,3 +402,18 @@ body {
   .card { border: none; background: transparent; }
   .summaryBlock { border: 1px solid #ddd; background: transparent; }
 }
+
+.brandLogo {
+  height: 24px !important;
+  width: auto !important;
+  max-width: 140px !important;
+  max-height: 24px !important;
+  display: block;
+  object-fit: contain;
+}
+
+.brand img {
+  width: auto !important;
+  height: 24px !important;
+  max-width: 140px !important;
+}
