@@ -71,7 +71,9 @@ function showStep(step) {
   byId("step2").classList.toggle("hidden", step !== 2);
   byId("step3").classList.toggle("hidden", step !== 3);
 
-  byId("backBtn").classList.toggle("hidden", step === 1);
+  byId("backBtn").classList.toggle("invisible", step === 1);
+
+
 
   setPills();
 
