@@ -183,6 +183,20 @@ body {
   padding: 6px 6px 14px 6px;
 }
 
+.navRow{
+  text-align: left;
+}
+
+.stepPills{
+  display:flex;
+  flex-direction:row;
+  justify-content:center;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+
 .navRow {
   display: grid;
   grid-template-columns: 120px 1fr 120px;
@@ -193,12 +207,6 @@ body {
 
 .navSpacer { height: 1px; }
 
-.stepPills {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
 
 .pill {
   padding: 7px 12px;
