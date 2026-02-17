@@ -25,7 +25,7 @@
     { "id": "lc_keypad_signature_with_std_circuit", "categoryId": "lighting_control", "label": "Signature keypad (includes 1x Std. Circuit)", "inputType": "qty", "price": 615, "tags": [] },
     { "id": "lc_keypad_premium", "categoryId": "lighting_control", "label": "Premium keypad", "inputType": "qty", "price": 800, "tags": [] },
     { "id": "lc_circuits_standard", "categoryId": "lighting_control", "label": "Standard circuits", "inputType": "qty", "price": 205, "tags": [] },
-    { "id": "lc_circuits_linear", "categoryId": "lighting_control", "label": "Linear circuits", "inputType": "qty", "price": 300, "tags": [] },
+    { "id": "lc_circuits_linear", "categoryId": "lighting_control", "label": "Linear circuits", "inputType": "qty", "price": 315, "tags": [] },
 
     { "id": "lf_downlight_essential", "categoryId": "lighting_fittings", "label": "Essential downlight", "inputType": "qty", "price": 115, "tags": [] },
     { "id": "lf_downlight_signature", "categoryId": "lighting_fittings", "label": "Signature downlight", "inputType": "qty", "price": 135, "tags": [] },
