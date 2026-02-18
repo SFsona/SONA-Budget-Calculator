@@ -38,27 +38,27 @@
       "categoryId": "lighting_fittings",
       "label": "Standard in wall or ground light",
       "inputType": "qty",
-      "price": 105,
+      "price": 110,
       "tags": [],
-      "roomAddon": { "every": 13, "amount": 54 }
+      "roomAddon": { "every": 13, "amount": 55 }
     },
     {
       "id": "lf_inwall_ground_mini",
       "categoryId": "lighting_fittings",
       "label": "Mini in wall or ground light",
       "inputType": "qty",
-      "price": 81,
+      "price": 85,
       "tags": [],
-      "roomAddon": { "every": 13, "amount": 54 }
+      "roomAddon": { "every": 13, "amount": 55 }
     },
     {
       "id": "lf_inwall_floorwash",
       "categoryId": "lighting_fittings",
       "label": "In wall floor wash light",
       "inputType": "qty",
-      "price": 94,
+      "price": 97,
       "tags": [],
-      "roomAddon": { "every": 13, "amount": 54 }
+      "roomAddon": { "every": 13, "amount": 55 }
     },
 
     { "id": "au_zone_essential", "categoryId": "audio", "label": "Essential music zone", "inputType": "qty", "price": 1500, "tags": ["needs_network", "needs_rack", "rack_unit"] },
