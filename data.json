@@ -68,7 +68,7 @@
     { "id": "lc_wireless_standard_circuit", "categoryId": "lighting_control", "label": "Wireless standard circuit (downlight, wall, lamp, pendant)", "inputType": "qty", "price": 190, "tags": ["circuit_wireless"] },
     { "id": "lc_wireless_architectural_circuit", "categoryId": "lighting_control", "label": "Wireless architectural circuit (linear, in ground, in wall)", "inputType": "qty", "price": 315, "tags": ["circuit_wireless"] },
 
-    { "id": "lc_wired_standard_circuit", "categoryId": "lighting_control", "label": "Wired standard circuit (wall, lamp, pendant)", "inputType": "qty", "price": 190, "tags": ["circuit_wired"], "roomAddon": { "every": 4, "amount": 816 } },
+    { "id": "lc_wired_standard_circuit", "categoryId": "lighting_control", "label": "Wired standard circuit (wall, lamp, pendant)", "inputType": "qty", "price": 0, "tags": ["circuit_wired"], "roomAddon": { "every": 4, "amount": 816 } },
     { "id": "lc_wired_dali_fitting", "categoryId": "lighting_control", "label": "Wired DALI fitting", "inputType": "qty", "price": 0, "tags": ["circuit_wired"], "roomAddon": { "every": 64, "amount": 1170 } },
 
     { "id": "lf_downlight_essential", "categoryId": "lighting_fittings", "label": "Essential downlight", "inputType": "qty", "price": 115, "tags": [] },
