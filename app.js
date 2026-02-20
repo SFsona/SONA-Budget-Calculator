@@ -224,7 +224,8 @@ function getRoomBaseTotalsExVat(room) {
     if (!opt) continue;
 
     const q = Number(qty || 0);
-    const line = Number(opt.price || 0) * q;
+    const unitEx = resolveDynamicUnitPriceExVat(room, opt);
+    const line = unitEx * q;
     const addon = computeRoomOptionAddonExVat(opt, q);
 
     low += line + addon;
@@ -235,8 +236,9 @@ function getRoomBaseTotalsExVat(room) {
     const opt = optionById(optionId);
     if (!opt) continue;
 
-    low += Number(opt.price || 0);
-    high += Number(opt.price || 0);
+    const unitEx = resolveDynamicUnitPriceExVat(room, opt);
+    low += unitEx;
+    high += unitEx;
   }
 
   if (state.useRanges) {
@@ -296,11 +298,6 @@ function tallyTagsAllRooms() {
 function roomHasAnyTags(room, tagList) {
   const tags = new Set(getRoomTags(room));
   return (tagList || []).some(t => tags.has(t));
-}
-
-function projectHasAnyTags(tagList) {
-  const tally = tallyTagsAllRooms();
-  return (tagList || []).some(t => (tally.get(t) || 0) > 0);
 }
 
 function roomHasWirelessKeypad(room) {
@@ -595,6 +592,16 @@ function renderProjectControls() {
   host.appendChild(block);
 }
 
+function renderSubheading(text) {
+  const h = document.createElement("div");
+  h.className = "categoryTitle";
+  h.textContent = text;
+  h.style.marginTop = "14px";
+  h.style.marginBottom = "8px";
+  h.style.opacity = "0.95";
+  return h;
+}
+
 function renderActiveRoom() {
   const room = state.rooms[state.activeRoomIndex];
   if (!room) return;
@@ -609,7 +616,6 @@ function renderActiveRoom() {
 
   for (const cat of state.data.categories) {
     const fams = rangeFamiliesByCategory(cat.id);
-
     const optsBase = optionsByCategory(cat.id);
 
     const opts = optsBase.filter(o => {
@@ -650,8 +656,56 @@ function renderActiveRoom() {
       }
     }
 
-    for (const opt of opts) {
-      section.appendChild(renderOptionRow(room, opt));
+    if (cat.id === "lighting_control") {
+      const wirelessKeypads = opts.filter(o => (o.tags || []).includes("keypad_wireless"));
+      const wiredKeypads = opts.filter(o => (o.tags || []).includes("keypad_wired"));
+      const motion = opts.filter(o => (o.tags || []).includes("motion_sensor"));
+      const wirelessCircuits = opts.filter(o => (o.tags || []).includes("circuit_wireless"));
+      const wiredCircuits = opts.filter(o => (o.tags || []).includes("circuit_wired"));
+
+      const used = new Set([
+        ...wirelessKeypads.map(o => o.id),
+        ...wiredKeypads.map(o => o.id),
+        ...motion.map(o => o.id),
+        ...wirelessCircuits.map(o => o.id),
+        ...wiredCircuits.map(o => o.id)
+      ]);
+
+      const other = opts.filter(o => !used.has(o.id));
+
+      if (wirelessKeypads.length) {
+        section.appendChild(renderSubheading("Wireless keypads"));
+        for (const opt of wirelessKeypads) section.appendChild(renderOptionRow(room, opt));
+      }
+
+      if (wiredKeypads.length) {
+        section.appendChild(renderSubheading("Wired keypads"));
+        for (const opt of wiredKeypads) section.appendChild(renderOptionRow(room, opt));
+      }
+
+      if (motion.length) {
+        section.appendChild(renderSubheading("Motion sensors"));
+        for (const opt of motion) section.appendChild(renderOptionRow(room, opt));
+      }
+
+      if (wirelessCircuits.length) {
+        section.appendChild(renderSubheading("Wireless circuits"));
+        for (const opt of wirelessCircuits) section.appendChild(renderOptionRow(room, opt));
+      }
+
+      if (wiredCircuits.length) {
+        section.appendChild(renderSubheading("Wired circuits"));
+        for (const opt of wiredCircuits) section.appendChild(renderOptionRow(room, opt));
+      }
+
+      if (other.length) {
+        section.appendChild(renderSubheading("Other"));
+        for (const opt of other) section.appendChild(renderOptionRow(room, opt));
+      }
+    } else {
+      for (const opt of opts) {
+        section.appendChild(renderOptionRow(room, opt));
+      }
     }
 
     wrap.appendChild(section);
