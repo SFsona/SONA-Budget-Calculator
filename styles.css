@@ -34,13 +34,35 @@ body {
 
 .step { display: block; }
 .hidden { display: none !important; }
+.invisible { visibility: hidden; }
 
 .topbar {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   gap: 12px;
   padding: 18px 18px 0 18px;
+}
+
+.topControls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.topToggles {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.topMain {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
 }
 
 .brand {
@@ -52,37 +74,16 @@ body {
 .brandLogo {
   height: 24px;
   width: auto;
-  max-width: none;
+  max-width: 140px;
+  max-height: 24px;
   display: block;
   object-fit: contain;
-}
-
-.brand img {
-  height: auto;
-}
-
-.brandMark {
-  font-size: 18px;
-  letter-spacing: 0.14em;
 }
 
 .brandSub {
   font-size: 12px;
   color: var(--muted);
 }
-
-.topRight{
-  display:flex;
-  align-items:center;
-  gap:16px;
-}
-
-.topToggles{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-
 
 .vatToggle {
   display: flex;
@@ -165,7 +166,7 @@ body {
   display: grid;
   place-items: center;
   padding: 18px;
-  min-height: calc(100vh - 90px);
+  min-height: calc(100vh - 120px);
 }
 
 .card {
@@ -178,29 +179,10 @@ body {
   padding: 16px;
 }
 
-.invisible {
-  visibility: hidden;
-  pointer-events: none;
-}
-
 .center {
   text-align: center;
   padding: 6px 6px 14px 6px;
 }
-
-.navRow{
-  text-align: left;
-}
-
-.stepPills{
-  display:flex;
-  flex-direction:row;
-  justify-content:center;
-  align-items:center;
-  gap:8px;
-  flex-wrap:wrap;
-}
-
 
 .navRow {
   display: grid;
@@ -212,6 +194,12 @@ body {
 
 .navSpacer { height: 1px; }
 
+.stepPills {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
 
 .pill {
   padding: 7px 12px;
@@ -327,7 +315,7 @@ body {
   margin-top: 2px;
 }
 
-.roomNav { display: flex; gap: 8px; flex-wrap: wrap; }
+.roomNav { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 
 .optionsWrap {
   display: grid;
@@ -412,6 +400,7 @@ body {
   .navRow { grid-template-columns: 90px 1fr 90px; }
   .totalsRow { min-width: 170px; }
   .btn { width: min(320px, 100%); }
+  .topMain { flex-direction: column; align-items: stretch; }
 }
 
 @media print {
@@ -419,19 +408,4 @@ body {
   .topbar, .navRow, .btn, .roomNav, .vatToggle { display: none !important; }
   .card { border: none; background: transparent; }
   .summaryBlock { border: 1px solid #ddd; background: transparent; }
-}
-
-.brandLogo {
-  height: 24px !important;
-  width: auto !important;
-  max-width: 140px !important;
-  max-height: 24px !important;
-  display: block;
-  object-fit: contain;
-}
-
-.brand img {
-  width: auto !important;
-  height: 24px !important;
-  max-width: 140px !important;
 }
