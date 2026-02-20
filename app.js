@@ -6,7 +6,7 @@
    VAT toggle
    Show ranges toggle for selected families
    Network toggle with project access points
-   Conditional lighting control options by wireless or wired keypad selection
+   Per room Lighting control mode: Wireless or Wired
    Project lighting processor add ons based on wireless and wired usage
    Room add ons for grouped wired circuits and other per room add ons
 */
@@ -105,7 +105,8 @@ function newRoom(name, type) {
     type,
     qty: {},
     choice: {},
-    rangeQty: {}
+    rangeQty: {},
+    lightingMode: "wireless"
   };
 }
 
@@ -215,6 +216,19 @@ function computeRoomOptionAddonExVat(opt, qty) {
   return Math.ceil(q / every) * amount;
 }
 
+function resolveDynamicUnitPriceExVat(room, opt) {
+  if (!opt) return 0;
+
+  if ((opt.tags || []).includes("motion_sensor")) {
+    const type = roomWiredMotionType(room);
+    if (type === "head") return Number(state.data?.motionSensors?.head || 0);
+    if (type === "local") return Number(state.data?.motionSensors?.local || 0);
+    return Number(state.data?.motionSensors?.local || 0);
+  }
+
+  return Number(opt.price || 0);
+}
+
 function getRoomBaseTotalsExVat(room) {
   let low = 0;
   let high = 0;
@@ -295,19 +309,6 @@ function tallyTagsAllRooms() {
   return tally;
 }
 
-function roomHasAnyTags(room, tagList) {
-  const tags = new Set(getRoomTags(room));
-  return (tagList || []).some(t => tags.has(t));
-}
-
-function roomHasWirelessKeypad(room) {
-  return roomHasAnyTags(room, ["keypad_wireless"]);
-}
-
-function roomHasWiredKeypad(room) {
-  return roomHasAnyTags(room, ["keypad_wired"]);
-}
-
 function roomWiredMotionType(room) {
   const tags = new Set(getRoomTags(room));
   if (tags.has("motion_head")) return "head";
@@ -356,41 +357,6 @@ function computeLightingProcessorAddOnsExVat() {
   return addOns;
 }
 
-function computeNetworkPorts() {
-  if (!state.includeNetwork) return { ports: 0, switches: 0, routerCost: 0, switchCost: 0, totalCost: 0 };
-
-  const net = state.data?.network || null;
-  if (!net) return { ports: 0, switches: 0, routerCost: 0, switchCost: 0, totalCost: 0 };
-
-  let ports = 0;
-
-  for (const room of state.rooms) {
-    ports += computeRoomPorts(room);
-  }
-
-  const proc = computeLightingProcessorMode();
-  if (proc.wiredUsed) ports += 1;
-  if (proc.wirelessUsed) ports += 1;
-
-  const apQty = Math.max(0, Number(state.project.accessPointsQty || 0));
-  ports += apQty;
-
-  const portsPerSwitch = Math.max(1, Number(net.switchPortsPerUnit || 23));
-  const switches = ports > 0 ? Math.ceil(ports / portsPerSwitch) : 0;
-
-  const routerCost = ports > 0 ? Number(net.routerCost || 0) : 0;
-  const switchCost = Number(net.switchCost || 0) * switches;
-
-  return { ports, switches, routerCost, switchCost, totalCost: routerCost + switchCost };
-}
-
-function isOptionExcludedFromPorts(opt) {
-  if (!opt) return true;
-  if (opt.categoryId === "lighting_fittings") return true;
-  if ((opt.tags || []).includes("keypad")) return true;
-  return false;
-}
-
 function computeRoomPorts(room) {
   let ports = 0;
 
@@ -424,6 +390,41 @@ function computeRoomPorts(room) {
   }
 
   return ports;
+}
+
+function isOptionExcludedFromPorts(opt) {
+  if (!opt) return true;
+  if (opt.categoryId === "lighting_fittings") return true;
+  if ((opt.tags || []).includes("keypad")) return true;
+  return false;
+}
+
+function computeNetworkPorts() {
+  if (!state.includeNetwork) return { ports: 0, switches: 0, routerCost: 0, switchCost: 0, totalCost: 0 };
+
+  const net = state.data?.network || null;
+  if (!net) return { ports: 0, switches: 0, routerCost: 0, switchCost: 0, totalCost: 0 };
+
+  let ports = 0;
+
+  for (const room of state.rooms) {
+    ports += computeRoomPorts(room);
+  }
+
+  const proc = computeLightingProcessorMode();
+  if (proc.wiredUsed) ports += 1;
+  if (proc.wirelessUsed) ports += 1;
+
+  const apQty = Math.max(0, Number(state.project.accessPointsQty || 0));
+  ports += apQty;
+
+  const portsPerSwitch = Math.max(1, Number(net.switchPortsPerUnit || 23));
+  const switches = ports > 0 ? Math.ceil(ports / portsPerSwitch) : 0;
+
+  const routerCost = ports > 0 ? Number(net.routerCost || 0) : 0;
+  const switchCost = Number(net.switchCost || 0) * switches;
+
+  return { ports, switches, routerCost, switchCost, totalCost: routerCost + switchCost };
 }
 
 function computeRuleAddOnsExVat() {
@@ -592,6 +593,94 @@ function renderProjectControls() {
   host.appendChild(block);
 }
 
+function clearLightingSelectionsNotInMode(room) {
+  const mode = room.lightingMode || "wireless";
+
+  const removeIf = opt => {
+    const tags = opt?.tags || [];
+    const isWireless = tags.includes("keypad_wireless") || tags.includes("circuit_wireless");
+    const isWired = tags.includes("keypad_wired") || tags.includes("circuit_wired") || tags.includes("motion_sensor");
+
+    if (mode === "wireless") return isWired;
+    if (mode === "wired") return isWireless;
+    return false;
+  };
+
+  for (const optionId of Object.keys(room.qty)) {
+    const opt = optionById(optionId);
+    if (!opt) continue;
+    if (removeIf(opt)) delete room.qty[optionId];
+  }
+
+  for (const groupId of Object.keys(room.choice)) {
+    const opt = optionById(room.choice[groupId]);
+    if (!opt) continue;
+    if (removeIf(opt)) delete room.choice[groupId];
+  }
+
+  if (state.useRanges) {
+    for (const fam of rangeFamilies()) {
+      if (fam.categoryId !== "lighting_control") continue;
+      if (!fam.mode) continue;
+
+      const shouldRemove =
+        (mode === "wireless" && fam.mode === "wired") ||
+        (mode === "wired" && fam.mode === "wireless");
+
+      if (shouldRemove) delete room.rangeQty[fam.id];
+    }
+  }
+}
+
+function renderRoomModeToggle(room) {
+  const host = byId("roomModeToggle");
+  if (!host) return;
+
+  host.innerHTML = "";
+
+  const wrap = document.createElement("div");
+  wrap.style.display = "flex";
+  wrap.style.gap = "8px";
+  wrap.style.alignItems = "center";
+
+  const btnWireless = document.createElement("button");
+  btnWireless.type = "button";
+  btnWireless.className = "btn btnGhost";
+  btnWireless.textContent = "Wireless";
+
+  const btnWired = document.createElement("button");
+  btnWired.type = "button";
+  btnWired.className = "btn btnGhost";
+  btnWired.textContent = "Wired";
+
+  const active = room.lightingMode || "wireless";
+
+  const setActiveStyle = (btn, on) => {
+    btn.style.background = on ? "rgba(255, 255, 255, 0.22)" : "transparent";
+  };
+
+  setActiveStyle(btnWireless, active === "wireless");
+  setActiveStyle(btnWired, active === "wired");
+
+  btnWireless.addEventListener("click", () => {
+    room.lightingMode = "wireless";
+    clearLightingSelectionsNotInMode(room);
+    renderActiveRoom();
+    updateTotalsUI();
+  });
+
+  btnWired.addEventListener("click", () => {
+    room.lightingMode = "wired";
+    clearLightingSelectionsNotInMode(room);
+    renderActiveRoom();
+    updateTotalsUI();
+  });
+
+  wrap.appendChild(btnWireless);
+  wrap.appendChild(btnWired);
+  host.appendChild(wrap);
+}
+
 function renderSubheading(text) {
   const h = document.createElement("div");
   h.className = "categoryTitle";
@@ -600,131 +689,6 @@ function renderSubheading(text) {
   h.style.marginBottom = "8px";
   h.style.opacity = "0.95";
   return h;
-}
-
-function renderActiveRoom() {
-  const room = state.rooms[state.activeRoomIndex];
-  if (!room) return;
-
-  byId("activeRoomTitle").textContent = room.name;
-  byId("activeRoomMeta").textContent = room.type;
-
-  renderProjectControls();
-
-  const wrap = byId("optionsWrap");
-  wrap.innerHTML = "";
-
-  for (const cat of state.data.categories) {
-    const fams = rangeFamiliesByCategory(cat.id);
-    const optsBase = optionsByCategory(cat.id);
-
-    const opts = optsBase.filter(o => {
-      if (state.useRanges && optionIsHiddenByRangeFamilies(o)) return false;
-
-      if (cat.id !== "lighting_control") return true;
-
-      const isWirelessCircuit = (o.tags || []).includes("circuit_wireless");
-      const isWiredCircuit = (o.tags || []).includes("circuit_wired");
-      const isMotionSensor = (o.tags || []).includes("motion_sensor");
-
-      const hasWireless = roomHasWirelessKeypad(room);
-      const hasWired = roomHasWiredKeypad(room);
-
-      if (isWirelessCircuit) return hasWireless;
-      if (isWiredCircuit) return hasWired;
-      if (isMotionSensor) return hasWired;
-
-      return true;
-    });
-
-    const shouldRenderRangeRows = state.useRanges && fams.length > 0;
-    const shouldRenderOpts = opts.length > 0;
-
-    if (!shouldRenderRangeRows && !shouldRenderOpts) continue;
-
-    const section = document.createElement("div");
-    section.className = "category";
-
-    const h = document.createElement("h2");
-    h.className = "categoryTitle";
-    h.textContent = cat.label;
-    section.appendChild(h);
-
-    if (state.useRanges) {
-      for (const fam of fams) {
-        section.appendChild(renderRangeFamilyRow(room, fam));
-      }
-    }
-
-    if (cat.id === "lighting_control") {
-      const wirelessKeypads = opts.filter(o => (o.tags || []).includes("keypad_wireless"));
-      const wiredKeypads = opts.filter(o => (o.tags || []).includes("keypad_wired"));
-      const motion = opts.filter(o => (o.tags || []).includes("motion_sensor"));
-      const wirelessCircuits = opts.filter(o => (o.tags || []).includes("circuit_wireless"));
-      const wiredCircuits = opts.filter(o => (o.tags || []).includes("circuit_wired"));
-
-      const used = new Set([
-        ...wirelessKeypads.map(o => o.id),
-        ...wiredKeypads.map(o => o.id),
-        ...motion.map(o => o.id),
-        ...wirelessCircuits.map(o => o.id),
-        ...wiredCircuits.map(o => o.id)
-      ]);
-
-      const other = opts.filter(o => !used.has(o.id));
-
-      if (wirelessKeypads.length) {
-        section.appendChild(renderSubheading("Wireless keypads"));
-        for (const opt of wirelessKeypads) section.appendChild(renderOptionRow(room, opt));
-      }
-
-      if (wiredKeypads.length) {
-        section.appendChild(renderSubheading("Wired keypads"));
-        for (const opt of wiredKeypads) section.appendChild(renderOptionRow(room, opt));
-      }
-
-      if (motion.length) {
-        section.appendChild(renderSubheading("Motion sensors"));
-        for (const opt of motion) section.appendChild(renderOptionRow(room, opt));
-      }
-
-      if (wirelessCircuits.length) {
-        section.appendChild(renderSubheading("Wireless circuits"));
-        for (const opt of wirelessCircuits) section.appendChild(renderOptionRow(room, opt));
-      }
-
-      if (wiredCircuits.length) {
-        section.appendChild(renderSubheading("Wired circuits"));
-        for (const opt of wiredCircuits) section.appendChild(renderOptionRow(room, opt));
-      }
-
-      if (other.length) {
-        section.appendChild(renderSubheading("Other"));
-        for (const opt of other) section.appendChild(renderOptionRow(room, opt));
-      }
-    } else {
-      for (const opt of opts) {
-        section.appendChild(renderOptionRow(room, opt));
-      }
-    }
-
-    wrap.appendChild(section);
-  }
-
-  updateTotalsUI();
-}
-
-function resolveDynamicUnitPriceExVat(room, opt) {
-  if (!opt) return 0;
-
-  if ((opt.tags || []).includes("motion_sensor")) {
-    const type = roomWiredMotionType(room);
-    if (type === "head") return Number(state.data?.motionSensors?.head || 0);
-    if (type === "local") return Number(state.data?.motionSensors?.local || 0);
-    return Number(state.data?.motionSensors?.local || 0);
-  }
-
-  return Number(opt.price || 0);
 }
 
 function renderOptionRow(room, opt) {
@@ -889,6 +853,110 @@ function renderRangeFamilyRow(room, fam) {
   row.appendChild(control);
 
   return row;
+}
+
+function renderActiveRoom() {
+  const room = state.rooms[state.activeRoomIndex];
+  if (!room) return;
+
+  if (!room.lightingMode) room.lightingMode = "wireless";
+
+  byId("activeRoomTitle").textContent = room.name;
+  byId("activeRoomMeta").textContent = room.type;
+
+  renderRoomModeToggle(room);
+  renderProjectControls();
+
+  clearLightingSelectionsNotInMode(room);
+
+  const wrap = byId("optionsWrap");
+  wrap.innerHTML = "";
+
+  for (const cat of state.data.categories) {
+    const famsAll = rangeFamiliesByCategory(cat.id);
+    const optsBase = optionsByCategory(cat.id);
+
+    const isLightingControl = cat.id === "lighting_control";
+    const mode = room.lightingMode || "wireless";
+
+    const fams = isLightingControl
+      ? famsAll.filter(f => !f.mode || f.mode === mode)
+      : famsAll;
+
+    const opts = optsBase.filter(o => {
+      if (state.useRanges && optionIsHiddenByRangeFamilies(o)) return false;
+
+      if (!isLightingControl) return true;
+
+      const tags = o.tags || [];
+      const isWireless = tags.includes("keypad_wireless") || tags.includes("circuit_wireless");
+      const isWired = tags.includes("keypad_wired") || tags.includes("circuit_wired") || tags.includes("motion_sensor");
+
+      if (mode === "wireless") return !isWired;
+      if (mode === "wired") return !isWireless;
+
+      return true;
+    });
+
+    const shouldRenderRangeRows = state.useRanges && fams.length > 0;
+    const shouldRenderOpts = opts.length > 0;
+
+    if (!shouldRenderRangeRows && !shouldRenderOpts) continue;
+
+    const section = document.createElement("div");
+    section.className = "category";
+
+    const h = document.createElement("h2");
+    h.className = "categoryTitle";
+    h.textContent = cat.label;
+    section.appendChild(h);
+
+    if (state.useRanges) {
+      for (const fam of fams) {
+        section.appendChild(renderRangeFamilyRow(room, fam));
+      }
+    }
+
+    if (isLightingControl) {
+      const keypads = opts.filter(o => (o.tags || []).includes(mode === "wireless" ? "keypad_wireless" : "keypad_wired"));
+      const motion = opts.filter(o => (o.tags || []).includes("motion_sensor"));
+      const circuits = opts.filter(o => (o.tags || []).includes(mode === "wireless" ? "circuit_wireless" : "circuit_wired"));
+
+      const used = new Set([
+        ...keypads.map(o => o.id),
+        ...motion.map(o => o.id),
+        ...circuits.map(o => o.id)
+      ]);
+
+      const other = opts.filter(o => !used.has(o.id));
+
+      if (!state.useRanges && keypads.length) {
+        section.appendChild(renderSubheading(mode === "wireless" ? "Wireless keypads" : "Wired keypads"));
+        for (const opt of keypads) section.appendChild(renderOptionRow(room, opt));
+      }
+
+      if (motion.length) {
+        section.appendChild(renderSubheading("Motion sensors"));
+        for (const opt of motion) section.appendChild(renderOptionRow(room, opt));
+      }
+
+      if (circuits.length) {
+        section.appendChild(renderSubheading(mode === "wireless" ? "Wireless circuits" : "Wired circuits"));
+        for (const opt of circuits) section.appendChild(renderOptionRow(room, opt));
+      }
+
+      if (other.length) {
+        section.appendChild(renderSubheading("Other"));
+        for (const opt of other) section.appendChild(renderOptionRow(room, opt));
+      }
+    } else {
+      for (const opt of opts) section.appendChild(renderOptionRow(room, opt));
+    }
+
+    wrap.appendChild(section);
+  }
+
+  updateTotalsUI();
 }
 
 function renderSummary() {
@@ -1071,6 +1139,7 @@ function wireEvents() {
   if (rangeToggle) {
     rangeToggle.addEventListener("change", e => {
       state.useRanges = Boolean(e.target.checked);
+      for (const room of state.rooms) clearLightingSelectionsNotInMode(room);
       if (state.step === 2) renderActiveRoom();
       if (state.step === 3) renderSummary();
       updateTotalsUI();
