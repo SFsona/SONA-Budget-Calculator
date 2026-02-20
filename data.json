@@ -116,6 +116,51 @@
   ],
   "rangeFamilies": [
     {
+      "id": "keypads_wireless",
+      "label": "Wireless keypads",
+      "inputType": "qty_range",
+      "categoryId": "lighting_control",
+      "mode": "wireless",
+      "sourceOptionIds": [
+        "lc_keypad_pico_single",
+        "lc_keypad_pico_dual",
+        "lc_keypad_vierti_single",
+        "lc_keypad_vierti_dual",
+        "lc_keypad_vierti_dimmer_single",
+        "lc_keypad_vierti_dimmer_dual"
+      ],
+      "tagsPerFamily": [],
+      "tagsPerUnit": ["keypad", "keypad_wireless"],
+      "networkPortsPerUnit": 0
+    },
+    {
+      "id": "keypads_wired",
+      "label": "Wired keypads",
+      "inputType": "qty_range",
+      "categoryId": "lighting_control",
+      "mode": "wired",
+      "sourceOptionIds": [
+        "lc_keypad_horizon_polymer_2",
+        "lc_keypad_horizon_metal_2",
+        "lc_keypad_palladiom_polymer_single",
+        "lc_keypad_palladiom_metal_single",
+        "lc_keypad_palladiom_bespoke_single",
+        "lc_keypad_palladiom_polymer_dual",
+        "lc_keypad_palladiom_metal_dual",
+        "lc_keypad_palladiom_bespoke_dual",
+        "lc_keypad_alisse_single",
+        "lc_keypad_alisse_dual",
+        "lc_keypad_aviena_dual",
+        "lc_keypad_aviena_quad",
+        "lc_keypad_tap",
+        "lc_keypad_sentido_dual",
+        "lc_keypad_sentido_quad"
+      ],
+      "tagsPerFamily": [],
+      "tagsPerUnit": ["keypad", "keypad_wired"],
+      "networkPortsPerUnit": 0
+    },
+    {
       "id": "audio_zones",
       "label": "Audio zones",
       "inputType": "qty_range",
