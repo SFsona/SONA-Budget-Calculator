@@ -1,15 +1,14 @@
-/* SONA Budget Calculator v1
+/* SONA Budget Calculator
    Data driven via data.json
    Prices stored ex VAT
 
-   Range families support
-   Certain option groups can be entered as a single qty and displayed as a low to high range.
-   Requires data.json to include:
-     - rangeFamilies: [{ id, label, categoryId, sourceOptionIds, tagsPerFamily?, tagsPerUnit? }, ...]
-
-   Includes a UI switch to toggle between:
-     - Range mode (single qty + range) for rangeFamilies
-     - Detailed mode (individual tier options)
+   Supports
+   VAT toggle
+   Show ranges toggle for selected families
+   Network toggle with project access points
+   Conditional lighting control options by wireless or wired keypad selection
+   Project lighting processor add ons based on wireless and wired usage
+   Room add ons for grouped wired circuits and other per room add ons
 */
 
 const state = {
@@ -18,7 +17,11 @@ const state = {
   rooms: [],
   activeRoomIndex: 0,
   includeVat: false,
-  useRanges: true
+  useRanges: true,
+  includeNetwork: false,
+  project: {
+    accessPointsQty: 0
+  }
 };
 
 function byId(id) {
@@ -35,18 +38,18 @@ function vatRate() {
 
 function money(value) {
   const s = currencySymbol();
-  const n = Math.round((value + Number.EPSILON) * 100) / 100;
+  const n = Math.round((Number(value || 0) + Number.EPSILON) * 100) / 100;
   return `${s}${n.toLocaleString("en-GB", { maximumFractionDigits: 0 })}`;
 }
 
 function applyVat(amountExVat) {
-  return state.includeVat ? amountExVat * (1 + vatRate()) : amountExVat;
+  return state.includeVat ? Number(amountExVat || 0) * (1 + vatRate()) : Number(amountExVat || 0);
 }
 
 function moneyRangeDisplay(low, high) {
   const a = money(low);
   const b = money(high);
-  return low === high ? a : `${a} to ${b}`;
+  return Number(low) === Number(high) ? a : `${a} to ${b}`;
 }
 
 function setVatModeUI() {
@@ -71,11 +74,9 @@ function showStep(step) {
   byId("step2").classList.toggle("hidden", step !== 2);
   byId("step3").classList.toggle("hidden", step !== 3);
 
-  byId("backBtn").classList.toggle("invisible", step === 1);
-  byId("backBtn").classList.remove("hidden");
-
-
-
+  const back = byId("backBtn");
+  back.classList.toggle("invisible", step === 1);
+  back.classList.remove("hidden");
 
   setPills();
 
@@ -176,8 +177,6 @@ function optionsByCategory(categoryId) {
   return state.data.options.filter(o => o.categoryId === categoryId);
 }
 
-/* Range families helpers */
-
 function rangeFamilies() {
   return state.data?.rangeFamilies || [];
 }
@@ -204,8 +203,6 @@ function optionIsHiddenByRangeFamilies(opt) {
   return false;
 }
 
-/* Totals */
-
 function computeRoomOptionAddonExVat(opt, qty) {
   if (!opt || !opt.roomAddon) return 0;
 
@@ -222,29 +219,26 @@ function getRoomBaseTotalsExVat(room) {
   let low = 0;
   let high = 0;
 
-  // Fixed qty options
   for (const [optionId, qty] of Object.entries(room.qty)) {
     const opt = optionById(optionId);
     if (!opt) continue;
 
     const q = Number(qty || 0);
-    const line = opt.price * q;
+    const line = Number(opt.price || 0) * q;
     const addon = computeRoomOptionAddonExVat(opt, q);
 
     low += line + addon;
     high += line + addon;
   }
 
-  // Fixed choice options
   for (const optionId of Object.values(room.choice)) {
     const opt = optionById(optionId);
     if (!opt) continue;
 
-    low += opt.price;
-    high += opt.price;
+    low += Number(opt.price || 0);
+    high += Number(opt.price || 0);
   }
 
-  // Range families only when enabled
   if (state.useRanges) {
     for (const fam of rangeFamilies()) {
       const q = Math.max(0, Number(room.rangeQty?.[fam.id] || 0));
@@ -259,41 +253,30 @@ function getRoomBaseTotalsExVat(room) {
   return { low, high };
 }
 
-function getRoomBaseTotalExVat(room) {
-  return getRoomBaseTotalsExVat(room).high;
-}
-
-/* Tags and rules */
-
 function getRoomTags(room) {
   const tags = [];
 
-  // Existing qty options: tags per unit
   for (const [optionId, qty] of Object.entries(room.qty)) {
     const opt = optionById(optionId);
     if (!opt) continue;
+
     const count = Math.max(0, Number(qty || 0));
     for (let i = 0; i < count; i++) tags.push(...(opt.tags || []));
   }
 
-  // Existing choice options: tags once
   for (const optionId of Object.values(room.choice)) {
     const opt = optionById(optionId);
     if (!opt) continue;
     tags.push(...(opt.tags || []));
   }
 
-  // Range families only when enabled
   if (state.useRanges) {
     for (const fam of rangeFamilies()) {
       const q = Math.max(0, Number(room.rangeQty?.[fam.id] || 0));
       if (!q) continue;
 
       tags.push(...(fam.tagsPerFamily || []));
-
-      for (let i = 0; i < q; i++) {
-        tags.push(...(fam.tagsPerUnit || []));
-      }
+      for (let i = 0; i < q; i++) tags.push(...(fam.tagsPerUnit || []));
     }
   }
 
@@ -320,38 +303,163 @@ function projectHasAnyTags(tagList) {
   return (tagList || []).some(t => (tally.get(t) || 0) > 0);
 }
 
-function computeRuleAddOnsExVat() {
-  const rules = state.data.rules || {};
+function roomHasWirelessKeypad(room) {
+  return roomHasAnyTags(room, ["keypad_wireless"]);
+}
+
+function roomHasWiredKeypad(room) {
+  return roomHasAnyTags(room, ["keypad_wired"]);
+}
+
+function roomWiredMotionType(room) {
+  const tags = new Set(getRoomTags(room));
+  if (tags.has("motion_head")) return "head";
+  if (tags.has("motion_local")) return "local";
+  return null;
+}
+
+function computeLightingProcessorMode() {
+  const tally = tallyTagsAllRooms();
+  const wirelessUsed = (tally.get("keypad_wireless") || 0) > 0;
+  const wiredUsed = (tally.get("keypad_wired") || 0) > 0;
+  return { wirelessUsed, wiredUsed };
+}
+
+function computeLightingProcessorAddOnsExVat() {
+  const p = state.data?.lightingProcessors || null;
+  if (!p) return [];
+
+  const mode = computeLightingProcessorMode();
   const addOns = [];
 
-  if (rules.networkAllowance) {
-    const r = rules.networkAllowance;
-    let countRooms = 0;
-    for (const room of state.rooms) {
-      if (roomHasAnyTags(room, r.appliesIfRoomHasAnyTags)) countRooms += 1;
-    }
-    if (countRooms > 0) {
-      addOns.push({
-        id: "networkAllowance",
-        label: r.label,
-        amountExVat: (r.amountPerRoom || 0) * countRooms,
-        detail: `${countRooms} room${countRooms === 1 ? "" : "s"}`
-      });
+  if (!mode.wirelessUsed && !mode.wiredUsed) return addOns;
+
+  if (mode.wiredUsed) {
+    addOns.push({
+      id: "wiredLightingProcessor",
+      label: "Wired lighting control processor",
+      amountExVat: Number(p.wiredCost || 0),
+      detail: ""
+    });
+  }
+
+  if (mode.wirelessUsed) {
+    const wirelessCost = mode.wiredUsed
+      ? Number(p.wirelessWithWiredCost || 0)
+      : Number(p.wirelessCost || 0);
+
+    addOns.push({
+      id: "wirelessLightingProcessor",
+      label: "Wireless lighting control processor",
+      amountExVat: wirelessCost,
+      detail: mode.wiredUsed ? "With wired processor" : ""
+    });
+  }
+
+  return addOns;
+}
+
+function computeNetworkPorts() {
+  if (!state.includeNetwork) return { ports: 0, switches: 0, routerCost: 0, switchCost: 0, totalCost: 0 };
+
+  const net = state.data?.network || null;
+  if (!net) return { ports: 0, switches: 0, routerCost: 0, switchCost: 0, totalCost: 0 };
+
+  let ports = 0;
+
+  for (const room of state.rooms) {
+    ports += computeRoomPorts(room);
+  }
+
+  const proc = computeLightingProcessorMode();
+  if (proc.wiredUsed) ports += 1;
+  if (proc.wirelessUsed) ports += 1;
+
+  const apQty = Math.max(0, Number(state.project.accessPointsQty || 0));
+  ports += apQty;
+
+  const portsPerSwitch = Math.max(1, Number(net.switchPortsPerUnit || 23));
+  const switches = ports > 0 ? Math.ceil(ports / portsPerSwitch) : 0;
+
+  const routerCost = ports > 0 ? Number(net.routerCost || 0) : 0;
+  const switchCost = Number(net.switchCost || 0) * switches;
+
+  return { ports, switches, routerCost, switchCost, totalCost: routerCost + switchCost };
+}
+
+function isOptionExcludedFromPorts(opt) {
+  if (!opt) return true;
+  if (opt.categoryId === "lighting_fittings") return true;
+  if ((opt.tags || []).includes("keypad")) return true;
+  return false;
+}
+
+function computeRoomPorts(room) {
+  let ports = 0;
+
+  for (const [optionId, qty] of Object.entries(room.qty)) {
+    const opt = optionById(optionId);
+    if (!opt) continue;
+    if (isOptionExcludedFromPorts(opt)) continue;
+
+    const q = Math.max(0, Number(qty || 0));
+    const per = Math.max(0, Number(opt.networkPortsPerUnit || 0));
+    ports += per * q;
+  }
+
+  for (const optionId of Object.values(room.choice)) {
+    const opt = optionById(optionId);
+    if (!opt) continue;
+    if (isOptionExcludedFromPorts(opt)) continue;
+
+    const per = Math.max(0, Number(opt.networkPortsPerUnit || 0));
+    ports += per;
+  }
+
+  if (state.useRanges) {
+    for (const fam of rangeFamilies()) {
+      const q = Math.max(0, Number(room.rangeQty?.[fam.id] || 0));
+      if (!q) continue;
+
+      const per = Math.max(0, Number(fam.networkPortsPerUnit || 0));
+      ports += per * q;
     }
   }
 
-  if (rules.rackAllowance) {
-    const r = rules.rackAllowance;
-    if (projectHasAnyTags(r.appliesIfProjectHasAnyTags)) {
-      const tally = tallyTagsAllRooms();
-      const unitTag = r.rackUnitTag || "rack_unit";
-      const units = tally.get(unitTag) || 0;
+  return ports;
+}
 
+function computeRuleAddOnsExVat() {
+  const addOns = [];
+
+  addOns.push(...computeLightingProcessorAddOnsExVat());
+
+  const net = computeNetworkPorts();
+  if (state.includeNetwork && net.ports > 0) {
+    addOns.push({
+      id: "networkRouter",
+      label: "Router",
+      amountExVat: net.routerCost,
+      detail: ""
+    });
+
+    addOns.push({
+      id: "networkSwitches",
+      label: "Switches",
+      amountExVat: net.switchCost,
+      detail: `${net.switches} switch${net.switches === 1 ? "" : "es"} for ${net.ports} ports`
+    });
+  }
+
+  if (state.includeNetwork) {
+    const apCost = Number(state.data?.network?.accessPointCost || 0);
+    const apQty = Math.max(0, Number(state.project.accessPointsQty || 0));
+    if (apQty > 0 && apCost > 0) {
       addOns.push({
-        id: "rackAllowance",
-        label: r.label,
-        amountExVat: (r.baseAmount || 0) + (r.amountPerRackUnitTag || 0) * units,
-        detail: `${units} rack unit${units === 1 ? "" : "s"}`
+        id: "wirelessAccessPoints",
+        label: "Wireless access points",
+        amountExVat: apQty * apCost,
+        detail: `${apQty} × ${money(apCost)}`
       });
     }
   }
@@ -363,11 +471,10 @@ function computeTotals() {
   const addOns = computeRuleAddOnsExVat();
 
   const roomTotals = state.rooms.map(r => getRoomBaseTotalsExVat(r));
-
   const baseLow = roomTotals.reduce((sum, t) => sum + t.low, 0);
   const baseHigh = roomTotals.reduce((sum, t) => sum + t.high, 0);
 
-  const addOnTotalExVat = addOns.reduce((sum, a) => sum + a.amountExVat, 0);
+  const addOnTotalExVat = addOns.reduce((sum, a) => sum + Number(a.amountExVat || 0), 0);
 
   const subLow = baseLow + addOnTotalExVat;
   const subHigh = baseHigh + addOnTotalExVat;
@@ -380,9 +487,6 @@ function computeTotals() {
 
   return {
     addOns,
-    baseTotalExVatLow: baseLow,
-    baseTotalExVatHigh: baseHigh,
-    addOnTotalExVat,
     subTotalExVatLow: subLow,
     subTotalExVatHigh: subHigh,
     vatAmountLow: vatLow,
@@ -402,9 +506,7 @@ function updateTotalsUI() {
 
   if (activeRoom) {
     const rt = getRoomBaseTotalsExVat(activeRoom);
-    const roomLow = applyVat(rt.low);
-    const roomHigh = applyVat(rt.high);
-    byId("roomTotal").textContent = moneyRangeDisplay(roomLow, roomHigh);
+    byId("roomTotal").textContent = moneyRangeDisplay(applyVat(rt.low), applyVat(rt.high));
   } else {
     byId("roomTotal").textContent = money(0);
   }
@@ -412,7 +514,86 @@ function updateTotalsUI() {
   setVatModeUI();
 }
 
-/* Options UI */
+function renderProjectControls() {
+  const host = byId("projectControls");
+  if (!host) return;
+
+  host.innerHTML = "";
+
+  if (!state.includeNetwork) return;
+
+  const block = document.createElement("div");
+  block.className = "summaryBlock";
+  block.style.marginTop = "0";
+  block.style.marginBottom = "12px";
+
+  const title = document.createElement("div");
+  title.className = "subtitle";
+  title.textContent = "Project network";
+  block.appendChild(title);
+
+  const row = document.createElement("div");
+  row.className = "optionRow";
+  row.style.marginBottom = "0";
+
+  const main = document.createElement("div");
+  main.className = "optionMain";
+
+  const label = document.createElement("div");
+  label.className = "optionLabel";
+  label.textContent = "Wireless access points";
+
+  const price = document.createElement("div");
+  price.className = "optionPrice";
+  const apCost = Number(state.data?.network?.accessPointCost || 0);
+  price.textContent = `${money(applyVat(apCost))} each`;
+
+  main.appendChild(label);
+  main.appendChild(price);
+
+  const control = document.createElement("div");
+  const qtyWrap = document.createElement("div");
+  qtyWrap.className = "qty";
+
+  const minus = document.createElement("button");
+  minus.className = "qtyBtn";
+  minus.type = "button";
+  minus.textContent = "–";
+
+  const val = document.createElement("div");
+  val.className = "qtyValue";
+  val.textContent = String(Math.max(0, Number(state.project.accessPointsQty || 0)));
+
+  const plus = document.createElement("button");
+  plus.className = "qtyBtn";
+  plus.type = "button";
+  plus.textContent = "+";
+
+  minus.addEventListener("click", () => {
+    const next = Math.max(0, Number(state.project.accessPointsQty || 0) - 1);
+    state.project.accessPointsQty = next;
+    val.textContent = String(next);
+    updateTotalsUI();
+  });
+
+  plus.addEventListener("click", () => {
+    const next = Math.max(0, Number(state.project.accessPointsQty || 0) + 1);
+    state.project.accessPointsQty = next;
+    val.textContent = String(next);
+    updateTotalsUI();
+  });
+
+  qtyWrap.appendChild(minus);
+  qtyWrap.appendChild(val);
+  qtyWrap.appendChild(plus);
+  control.appendChild(qtyWrap);
+
+  row.appendChild(main);
+  row.appendChild(control);
+
+  block.appendChild(row);
+  host.appendChild(block);
+}
 
 function renderActiveRoom() {
   const room = state.rooms[state.activeRoomIndex];
@@ -421,19 +602,39 @@ function renderActiveRoom() {
   byId("activeRoomTitle").textContent = room.name;
   byId("activeRoomMeta").textContent = room.type;
 
+  renderProjectControls();
+
   const wrap = byId("optionsWrap");
   wrap.innerHTML = "";
 
   for (const cat of state.data.categories) {
     const fams = rangeFamiliesByCategory(cat.id);
 
-    const opts = optionsByCategory(cat.id).filter(o => {
-      if (!state.useRanges) return true;
-      return !optionIsHiddenByRangeFamilies(o);
+    const optsBase = optionsByCategory(cat.id);
+
+    const opts = optsBase.filter(o => {
+      if (state.useRanges && optionIsHiddenByRangeFamilies(o)) return false;
+
+      if (cat.id !== "lighting_control") return true;
+
+      const isWirelessCircuit = (o.tags || []).includes("circuit_wireless");
+      const isWiredCircuit = (o.tags || []).includes("circuit_wired");
+      const isMotionSensor = (o.tags || []).includes("motion_sensor");
+
+      const hasWireless = roomHasWirelessKeypad(room);
+      const hasWired = roomHasWiredKeypad(room);
+
+      if (isWirelessCircuit) return hasWireless;
+      if (isWiredCircuit) return hasWired;
+      if (isMotionSensor) return hasWired;
+
+      return true;
     });
 
-    if ((!state.useRanges || !fams.length) && !opts.length) continue;
-    if (state.useRanges && !fams.length && !opts.length) continue;
+    const shouldRenderRangeRows = state.useRanges && fams.length > 0;
+    const shouldRenderOpts = opts.length > 0;
+
+    if (!shouldRenderRangeRows && !shouldRenderOpts) continue;
 
     const section = document.createElement("div");
     section.className = "category";
@@ -453,12 +654,23 @@ function renderActiveRoom() {
       section.appendChild(renderOptionRow(room, opt));
     }
 
-    if (section.children.length > 1) {
-      wrap.appendChild(section);
-    }
+    wrap.appendChild(section);
   }
 
   updateTotalsUI();
+}
+
+function resolveDynamicUnitPriceExVat(room, opt) {
+  if (!opt) return 0;
+
+  if ((opt.tags || []).includes("motion_sensor")) {
+    const type = roomWiredMotionType(room);
+    if (type === "head") return Number(state.data?.motionSensors?.head || 0);
+    if (type === "local") return Number(state.data?.motionSensors?.local || 0);
+    return Number(state.data?.motionSensors?.local || 0);
+  }
+
+  return Number(opt.price || 0);
 }
 
 function renderOptionRow(room, opt) {
@@ -474,7 +686,15 @@ function renderOptionRow(room, opt) {
 
   const price = document.createElement("div");
   price.className = "optionPrice";
-  price.textContent = `${money(applyVat(opt.price))}${opt.inputType === "qty" ? " each" : ""}`;
+
+  const unitEx = resolveDynamicUnitPriceExVat(room, opt);
+  const unit = applyVat(unitEx);
+
+  if (opt.inputType === "qty") {
+    price.textContent = `${money(unit)} each`;
+  } else {
+    price.textContent = `${money(unit)}`;
+  }
 
   main.appendChild(label);
   main.appendChild(price);
@@ -505,6 +725,7 @@ function renderOptionRow(room, opt) {
       else room.qty[opt.id] = next;
       val.textContent = String(next);
       updateTotalsUI();
+      renderActiveRoom();
     });
 
     plus.addEventListener("click", () => {
@@ -512,6 +733,7 @@ function renderOptionRow(room, opt) {
       room.qty[opt.id] = next;
       val.textContent = String(next);
       updateTotalsUI();
+      renderActiveRoom();
     });
 
     qtyWrap.appendChild(minus);
@@ -615,8 +837,6 @@ function renderRangeFamilyRow(room, fam) {
   return row;
 }
 
-/* Summary */
-
 function renderSummary() {
   const roomsWrap = byId("summaryRooms");
   const rulesWrap = byId("summaryRules");
@@ -652,16 +872,17 @@ function renderSummary() {
     const list = document.createElement("div");
     list.className = "summaryList";
 
-    // Fixed qty selections
     for (const [optionId, qty] of Object.entries(room.qty)) {
       const opt = optionById(optionId);
       if (!opt) continue;
 
       const q = Number(qty || 0);
+      const unitEx = resolveDynamicUnitPriceExVat(room, opt);
+      const lineTotal = unitEx * q;
 
       const line = document.createElement("div");
       line.className = "summaryLine";
-      line.innerHTML = `<div>${opt.label} × ${q}</div><div>${money(applyVat(opt.price * q))}</div>`;
+      line.innerHTML = `<div>${opt.label} × ${q}</div><div>${money(applyVat(lineTotal))}</div>`;
       list.appendChild(line);
 
       const addon = computeRoomOptionAddonExVat(opt, q);
@@ -670,24 +891,24 @@ function renderSummary() {
         const addonLine = document.createElement("div");
         addonLine.className = "summaryLine summaryLineMuted";
         addonLine.innerHTML =
-          `<div>Driver allowance for ${opt.label} (${blocks} × ${money(applyVat(Number(opt.roomAddon.amount)))})</div>` +
+          `<div>Add on for ${opt.label} (${blocks} × ${money(applyVat(Number(opt.roomAddon.amount)))})</div>` +
           `<div>${money(applyVat(addon))}</div>`;
         list.appendChild(addonLine);
       }
     }
 
-    // Fixed choice selections
     for (const optionId of Object.values(room.choice)) {
       const opt = optionById(optionId);
       if (!opt) continue;
 
+      const unitEx = resolveDynamicUnitPriceExVat(room, opt);
+
       const line = document.createElement("div");
       line.className = "summaryLine";
-      line.innerHTML = `<div>${opt.label}</div><div>${money(applyVat(opt.price))}</div>`;
+      line.innerHTML = `<div>${opt.label}</div><div>${money(applyVat(unitEx))}</div>`;
       list.appendChild(line);
     }
 
-    // Range family selections only when enabled
     if (state.useRanges) {
       for (const fam of rangeFamilies()) {
         const q = Math.max(0, Number(room.rangeQty?.[fam.id] || 0));
@@ -715,7 +936,6 @@ function renderSummary() {
     roomsWrap.appendChild(block);
   }
 
-  // Project add ons
   if (totals.addOns.length) {
     for (const a of totals.addOns) {
       const line = document.createElement("div");
@@ -731,7 +951,6 @@ function renderSummary() {
     rulesWrap.appendChild(empty);
   }
 
-  // Totals (range aware)
   const sub = document.createElement("div");
   sub.className = "summaryLine";
   sub.innerHTML = `<div>Subtotal (ex VAT)</div><div>${moneyRangeDisplay(totals.subTotalExVatLow, totals.subTotalExVatHigh)}</div>`;
@@ -755,8 +974,6 @@ function renderSummary() {
 
   updateTotalsUI();
 }
-
-/* Events and boot */
 
 function wireEvents() {
   byId("addRoomBtn").addEventListener("click", addRoom);
@@ -805,6 +1022,17 @@ function wireEvents() {
       updateTotalsUI();
     });
   }
+
+  const networkToggle = byId("networkToggle");
+  if (networkToggle) {
+    networkToggle.addEventListener("change", e => {
+      state.includeNetwork = Boolean(e.target.checked);
+      if (!state.includeNetwork) state.project.accessPointsQty = 0;
+      if (state.step === 2) renderActiveRoom();
+      if (state.step === 3) renderSummary();
+      updateTotalsUI();
+    });
+  }
 }
 
 async function loadData() {
@@ -822,6 +1050,12 @@ async function main() {
   if (rangeToggle) {
     rangeToggle.checked = true;
     state.useRanges = true;
+  }
+
+  const networkToggle = byId("networkToggle");
+  if (networkToggle) {
+    networkToggle.checked = false;
+    state.includeNetwork = false;
   }
 
   setVatModeUI();
