@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>SONA Budget Calculator</title>
 
-    <!-- Adobe Fonts: replace with your kit URL -->
-    <!-- <link rel="stylesheet" href="https://use.typekit.net/XXXXXXX.css"> -->
-
     <link rel="stylesheet" href="./styles.css" />
   </head>
 
@@ -20,57 +17,58 @@
 
     <header class="topbar">
       <div class="brand">
-      <img
-        class="brandLogo"
-        src="./SONA-icon-white.png"
-        alt="SONA"
-      />
-      <div class="brandSub">Budget Calculator</div>
-    </div>
-
+        <img class="brandLogo" src="./SONA-icon-white.png" alt="SONA" />
+        <div class="brandSub">Budget Calculator</div>
+      </div>
 
       <div class="topRight">
-  <div class="topToggles">
-    <label class="vatToggle" for="rangeToggle">
-      <span class="vatText">Show ranges</span>
-      <span class="switch">
-        <input id="rangeToggle" type="checkbox" checked />
-        <span class="slider"></span>
-      </span>
-    </label>
+        <div class="topToggles">
+          <label class="vatToggle" for="rangeToggle">
+            <span class="vatText">Show ranges</span>
+            <span class="switch">
+              <input id="rangeToggle" type="checkbox" checked />
+              <span class="slider"></span>
+            </span>
+          </label>
 
-    <label class="vatToggle" for="vatToggle">
-      <span class="vatText">Include VAT</span>
-      <span class="switch">
-        <input id="vatToggle" type="checkbox" />
-        <span class="slider"></span>
-      </span>
-    </label>
-  </div>
+          <label class="vatToggle" for="networkToggle">
+            <span class="vatText">Network</span>
+            <span class="switch">
+              <input id="networkToggle" type="checkbox" />
+              <span class="slider"></span>
+            </span>
+          </label>
 
-  <div class="totals">
-    <div class="totalsRow">
-      <div class="totalsLabel">Room</div>
-      <div class="totalsValue" id="roomTotal">£0</div>
-    </div>
-    <div class="totalsRow">
-      <div class="totalsLabel">Overall</div>
-      <div class="totalsValue totalsValueStrong" id="overallTotal">£0</div>
-    </div>
-    <div class="totalsRow totalsRowSmall">
-      <div class="totalsLabel">Mode</div>
-      <div class="totalsValue" id="vatMode">Ex VAT</div>
-    </div>
-  </div>
-</div>
+          <label class="vatToggle" for="vatToggle">
+            <span class="vatText">Include VAT</span>
+            <span class="switch">
+              <input id="vatToggle" type="checkbox" />
+              <span class="slider"></span>
+            </span>
+          </label>
+        </div>
 
+        <div class="totals">
+          <div class="totalsRow">
+            <div class="totalsLabel">Room</div>
+            <div class="totalsValue" id="roomTotal">£0</div>
+          </div>
+          <div class="totalsRow">
+            <div class="totalsLabel">Overall</div>
+            <div class="totalsValue totalsValueStrong" id="overallTotal">£0</div>
+          </div>
+          <div class="totalsRow totalsRowSmall">
+            <div class="totalsLabel">Mode</div>
+            <div class="totalsValue" id="vatMode">Ex VAT</div>
+          </div>
+        </div>
+      </div>
     </header>
 
     <main class="shell">
       <div class="card">
         <div class="navRow">
           <button id="backBtn" class="btn btnGhost invisible" type="button">Back</button>
-
 
           <div class="stepPills" aria-label="Steps">
             <div class="pill" id="pill1">Rooms</div>
@@ -114,6 +112,8 @@
                 <button id="nextRoomBtn" class="btn btnGhost" type="button">Next room</button>
               </div>
             </div>
+
+            <div id="projectControls"></div>
 
             <div id="optionsWrap" class="optionsWrap"></div>
 
