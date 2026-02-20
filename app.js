@@ -691,6 +691,25 @@ function renderSubheading(text) {
   return h;
 }
 
+function priceTextForOption(room, opt) {
+  const unitEx = resolveDynamicUnitPriceExVat(room, opt);
+
+  if (opt.inputType === "qty") {
+    const hasGroupedAddon = Boolean(opt.roomAddon) && Number(opt.roomAddon.amount || 0) > 0 && Number(opt.roomAddon.every || 0) > 0;
+    const unitIsZero = Number(unitEx || 0) === 0;
+
+    if (hasGroupedAddon && unitIsZero) {
+      const every = Number(opt.roomAddon.every);
+      const amount = Number(opt.roomAddon.amount);
+      return `${money(applyVat(amount))} per group of up to ${every}`;
+    }
+
+    return `${money(applyVat(unitEx))} each`;
+  }
+
+  return `${money(applyVat(unitEx))}`;
+}
+
 function renderOptionRow(room, opt) {
   const row = document.createElement("div");
   row.className = "optionRow";
@@ -704,15 +723,7 @@ function renderOptionRow(room, opt) {
 
   const price = document.createElement("div");
   price.className = "optionPrice";
-
-  const unitEx = resolveDynamicUnitPriceExVat(room, opt);
-  const unit = applyVat(unitEx);
-
-  if (opt.inputType === "qty") {
-    price.textContent = `${money(unit)} each`;
-  } else {
-    price.textContent = `${money(unit)}`;
-  }
+  price.textContent = priceTextForOption(room, opt);
 
   main.appendChild(label);
   main.appendChild(price);
@@ -1000,21 +1011,33 @@ function renderSummary() {
 
       const q = Number(qty || 0);
       const unitEx = resolveDynamicUnitPriceExVat(room, opt);
-      const lineTotal = unitEx * q;
 
-      const line = document.createElement("div");
-      line.className = "summaryLine";
-      line.innerHTML = `<div>${opt.label} × ${q}</div><div>${money(applyVat(lineTotal))}</div>`;
-      list.appendChild(line);
+      const hasGroupedAddon = Boolean(opt.roomAddon) && Number(opt.roomAddon.amount || 0) > 0 && Number(opt.roomAddon.every || 0) > 0;
+      const unitIsZero = Number(unitEx || 0) === 0;
+      const shouldSuppressZeroLine = opt.inputType === "qty" && unitIsZero && hasGroupedAddon;
+
+      if (!shouldSuppressZeroLine) {
+        const lineTotal = unitEx * q;
+
+        const line = document.createElement("div");
+        line.className = "summaryLine";
+        line.innerHTML = `<div>${opt.label} × ${q}</div><div>${money(applyVat(lineTotal))}</div>`;
+        list.appendChild(line);
+      }
 
       const addon = computeRoomOptionAddonExVat(opt, q);
       if (addon > 0) {
-        const blocks = Math.ceil(q / Number(opt.roomAddon.every));
+        const every = Number(opt.roomAddon.every);
+        const amount = Number(opt.roomAddon.amount);
+        const groups = Math.ceil(q / every);
+
         const addonLine = document.createElement("div");
-        addonLine.className = "summaryLine summaryLineMuted";
+        addonLine.className = "summaryLine";
+
         addonLine.innerHTML =
-          `<div>Add on for ${opt.label} (${blocks} × ${money(applyVat(Number(opt.roomAddon.amount)))})</div>` +
+          `<div>${opt.label}: ${q} ${q === 1 ? "item" : "items"} (${groups} group${groups === 1 ? "" : "s"} × ${money(applyVat(amount))})</div>` +
           `<div>${money(applyVat(addon))}</div>`;
+
         list.appendChild(addonLine);
       }
     }
