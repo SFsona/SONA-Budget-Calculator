@@ -18,15 +18,58 @@
     { "id": "audio", "label": "Audio" },
     { "id": "video", "label": "Video" },
     { "id": "media_system", "label": "Media system" }
-
   ],
+  "motionSensors": {
+    "local": 196,
+    "head": 219
+  },
+  "lightingProcessors": {
+    "wirelessCost": 684,
+    "wirelessWithWiredCost": 1106,
+    "wiredCost": 2477
+  },
+  "network": {
+    "routerCost": 1323,
+    "switchCost": 1195,
+    "switchPortsPerUnit": 23,
+    "accessPointCost": 338
+  },
   "options": [
-    { "id": "lc_keypad_essential", "categoryId": "lighting_control", "label": "Essential keypad", "inputType": "qty", "price": 216, "tags": [] },
-    { "id": "lc_keypad_signature_keypad_only", "categoryId": "lighting_control", "label": "Signature keypad (keypad only)", "inputType": "qty", "price": 525, "tags": [] },
-    { "id": "lc_keypad_signature_with_std_circuit", "categoryId": "lighting_control", "label": "Signature keypad (includes 1x Std. Circuit)", "inputType": "qty", "price": 615, "tags": [] },
-    { "id": "lc_keypad_premium", "categoryId": "lighting_control", "label": "Premium keypad", "inputType": "qty", "price": 800, "tags": [] },
-    { "id": "lc_circuits_standard", "categoryId": "lighting_control", "label": "Standard circuits", "inputType": "qty", "price": 205, "tags": [] },
-    { "id": "lc_circuits_linear", "categoryId": "lighting_control", "label": "Linear or in-ground/wall circuits", "inputType": "qty", "price": 315, "tags": [] },
+    { "id": "lc_keypad_pico_single", "categoryId": "lighting_control", "label": "Pico single column", "inputType": "qty", "price": 294, "tags": ["keypad", "keypad_wireless"] },
+    { "id": "lc_keypad_pico_dual", "categoryId": "lighting_control", "label": "Pico dual column", "inputType": "qty", "price": 362, "tags": ["keypad", "keypad_wireless"] },
+    { "id": "lc_keypad_vierti_single", "categoryId": "lighting_control", "label": "Vierti keypad single column", "inputType": "qty", "price": 501, "tags": ["keypad", "keypad_wireless"] },
+    { "id": "lc_keypad_vierti_dual", "categoryId": "lighting_control", "label": "Vierti keypad dual column", "inputType": "qty", "price": 583, "tags": ["keypad", "keypad_wireless"] },
+    { "id": "lc_keypad_vierti_dimmer_single", "categoryId": "lighting_control", "label": "Vierti keypad with dimmer single column", "inputType": "qty", "price": 562, "tags": ["keypad", "keypad_wireless"] },
+    { "id": "lc_keypad_vierti_dimmer_dual", "categoryId": "lighting_control", "label": "Vierti keypad with dimmer dual column", "inputType": "qty", "price": 644, "tags": ["keypad", "keypad_wireless"] },
+
+    { "id": "lc_keypad_horizon_polymer_2", "categoryId": "lighting_control", "label": "Horizon 2 polymer", "inputType": "qty", "price": 448, "tags": ["keypad", "keypad_wired", "motion_local"] },
+    { "id": "lc_keypad_horizon_metal_2", "categoryId": "lighting_control", "label": "Horizon 2 metal", "inputType": "qty", "price": 492, "tags": ["keypad", "keypad_wired", "motion_local"] },
+
+    { "id": "lc_keypad_palladiom_polymer_single", "categoryId": "lighting_control", "label": "Palladiom polymer single column", "inputType": "qty", "price": 446, "tags": ["keypad", "keypad_wired", "motion_head"] },
+    { "id": "lc_keypad_palladiom_metal_single", "categoryId": "lighting_control", "label": "Palladiom metal single column", "inputType": "qty", "price": 579, "tags": ["keypad", "keypad_wired", "motion_head"] },
+    { "id": "lc_keypad_palladiom_bespoke_single", "categoryId": "lighting_control", "label": "Palladiom bespoke single column", "inputType": "qty", "price": 663, "tags": ["keypad", "keypad_wired", "motion_head"] },
+    { "id": "lc_keypad_palladiom_polymer_dual", "categoryId": "lighting_control", "label": "Palladiom polymer dual column", "inputType": "qty", "price": 604, "tags": ["keypad", "keypad_wired", "motion_head"] },
+    { "id": "lc_keypad_palladiom_metal_dual", "categoryId": "lighting_control", "label": "Palladiom metal dual column", "inputType": "qty", "price": 824, "tags": ["keypad", "keypad_wired", "motion_head"] },
+    { "id": "lc_keypad_palladiom_bespoke_dual", "categoryId": "lighting_control", "label": "Palladiom bespoke dual column", "inputType": "qty", "price": 891, "tags": ["keypad", "keypad_wired", "motion_head"] },
+
+    { "id": "lc_keypad_alisse_single", "categoryId": "lighting_control", "label": "Alisse single column", "inputType": "qty", "price": 671, "tags": ["keypad", "keypad_wired", "motion_local"] },
+    { "id": "lc_keypad_alisse_dual", "categoryId": "lighting_control", "label": "Alisse dual column", "inputType": "qty", "price": 805, "tags": ["keypad", "keypad_wired", "motion_local"] },
+
+    { "id": "lc_keypad_aviena_dual", "categoryId": "lighting_control", "label": "Aviena dual toggle", "inputType": "qty", "price": 774, "tags": ["keypad", "keypad_wired", "motion_head"] },
+    { "id": "lc_keypad_aviena_quad", "categoryId": "lighting_control", "label": "Aviena quad toggle", "inputType": "qty", "price": 941, "tags": ["keypad", "keypad_wired", "motion_head"] },
+
+    { "id": "lc_keypad_tap", "categoryId": "lighting_control", "label": "TAP", "inputType": "qty", "price": 957, "tags": ["keypad", "keypad_wired", "motion_head"] },
+
+    { "id": "lc_keypad_sentido_dual", "categoryId": "lighting_control", "label": "Sentido dual", "inputType": "qty", "price": 692, "tags": ["keypad", "keypad_wired", "motion_head"] },
+    { "id": "lc_keypad_sentido_quad", "categoryId": "lighting_control", "label": "Sentido quad", "inputType": "qty", "price": 720, "tags": ["keypad", "keypad_wired", "motion_head"] },
+
+    { "id": "lc_motion_sensor", "categoryId": "lighting_control", "label": "Motion sensor", "inputType": "qty", "price": 0, "tags": ["motion_sensor"] },
+
+    { "id": "lc_wireless_standard_circuit", "categoryId": "lighting_control", "label": "Wireless standard circuit (downlight, wall, lamp, pendant)", "inputType": "qty", "price": 190, "tags": ["circuit_wireless"] },
+    { "id": "lc_wireless_architectural_circuit", "categoryId": "lighting_control", "label": "Wireless architectural circuit (linear, in ground, in wall)", "inputType": "qty", "price": 315, "tags": ["circuit_wireless"] },
+
+    { "id": "lc_wired_standard_circuit", "categoryId": "lighting_control", "label": "Wired standard circuit (wall, lamp, pendant)", "inputType": "qty", "price": 190, "tags": ["circuit_wired"], "roomAddon": { "every": 4, "amount": 816 } },
+    { "id": "lc_wired_dali_fitting", "categoryId": "lighting_control", "label": "Wired DALI fitting", "inputType": "qty", "price": 0, "tags": ["circuit_wired"], "roomAddon": { "every": 64, "amount": 1170 } },
 
     { "id": "lf_downlight_essential", "categoryId": "lighting_fittings", "label": "Essential downlight", "inputType": "qty", "price": 115, "tags": [] },
     { "id": "lf_downlight_signature", "categoryId": "lighting_fittings", "label": "Signature downlight", "inputType": "qty", "price": 155, "tags": [] },
@@ -38,98 +81,70 @@
       "categoryId": "lighting_fittings",
       "label": "Standard in wall or ground light",
       "inputType": "qty",
-      "price": 110,
+      "price": 105,
       "tags": [],
-      "roomAddon": { "every": 13, "amount": 55 }
+      "roomAddon": { "every": 13, "amount": 54 }
     },
     {
       "id": "lf_inwall_ground_mini",
       "categoryId": "lighting_fittings",
       "label": "Mini in wall or ground light",
       "inputType": "qty",
-      "price": 85,
+      "price": 81,
       "tags": [],
-      "roomAddon": { "every": 13, "amount": 55 }
+      "roomAddon": { "every": 13, "amount": 54 }
     },
     {
       "id": "lf_inwall_floorwash",
       "categoryId": "lighting_fittings",
       "label": "In wall floor wash light",
       "inputType": "qty",
-      "price": 97,
+      "price": 94,
       "tags": [],
-      "roomAddon": { "every": 13, "amount": 55 }
+      "roomAddon": { "every": 13, "amount": 54 }
     },
 
-    { "id": "au_zone_essential", "categoryId": "audio", "label": "Essential music zone", "inputType": "qty", "price": 1500, "tags": ["needs_network", "needs_rack", "rack_unit"] },
-    { "id": "au_zone_signature", "categoryId": "audio", "label": "Signature music zone", "inputType": "qty", "price": 1800, "tags": ["needs_network", "needs_rack", "rack_unit"] },
-    { "id": "au_zone_premium", "categoryId": "audio", "label": "Premium music zone", "inputType": "qty", "price": 2800, "tags": ["needs_network", "needs_rack", "rack_unit"] },
-    { "id": "au_zone_ultimate", "categoryId": "audio", "label": "Ultimate music zone", "inputType": "qty", "price": 3500, "tags": ["needs_network", "needs_rack", "rack_unit"] },
+    { "id": "au_zone_essential", "categoryId": "audio", "label": "Essential music zone", "inputType": "qty", "price": 1500, "tags": [], "networkPortsPerUnit": 1 },
+    { "id": "au_zone_signature", "categoryId": "audio", "label": "Signature music zone", "inputType": "qty", "price": 1800, "tags": [], "networkPortsPerUnit": 1 },
+    { "id": "au_zone_premium", "categoryId": "audio", "label": "Premium music zone", "inputType": "qty", "price": 2800, "tags": [], "networkPortsPerUnit": 1 },
+    { "id": "au_zone_ultimate", "categoryId": "audio", "label": "Ultimate music zone", "inputType": "qty", "price": 3500, "tags": [], "networkPortsPerUnit": 1 },
 
-    { "id": "mc_essential", "categoryId": "media_system", "label": "Essential media system", "inputType": "choice", "groupId": "media_system", "price": 6000, "tags": ["needs_network", "needs_rack", "rack_unit"] },
-    { "id": "mc_signature", "categoryId": "media_system", "label": "Signature media system", "inputType": "choice", "groupId": "media_system", "price": 10000, "tags": ["needs_network", "needs_rack", "rack_unit"] },
-    { "id": "mc_premium", "categoryId": "media_system", "label": "Premium media system", "inputType": "choice", "groupId": "media_system", "price": 15000, "tags": ["needs_network", "needs_rack", "rack_unit"] },
-    { "id": "mc_ultimate", "categoryId": "media_system", "label": "Ultimate media system", "inputType": "choice", "groupId": "media_system", "price": 20000, "tags": ["needs_network", "needs_rack", "rack_unit"] }
+    { "id": "ms_essential", "categoryId": "media_system", "label": "Essential media system", "inputType": "choice", "groupId": "media_system", "price": 6000, "tags": [], "networkPortsPerUnit": 6 },
+    { "id": "ms_signature", "categoryId": "media_system", "label": "Signature media system", "inputType": "choice", "groupId": "media_system", "price": 10000, "tags": [], "networkPortsPerUnit": 6 },
+    { "id": "ms_premium", "categoryId": "media_system", "label": "Premium media system", "inputType": "choice", "groupId": "media_system", "price": 15000, "tags": [], "networkPortsPerUnit": 6 },
+    { "id": "ms_ultimate", "categoryId": "media_system", "label": "Ultimate media system", "inputType": "choice", "groupId": "media_system", "price": 20000, "tags": [], "networkPortsPerUnit": 6 }
   ],
-
   "rangeFamilies": [
-  {
-    "id": "lighting_keypads",
-    "label": "Lighting keypads",
-    "inputType": "qty_range",
-    "categoryId": "lighting_control",
-    "sourceOptionIds": [
-      "lc_keypad_essential",
-      "lc_keypad_signature_keypad_only",
-      "lc_keypad_signature_with_std_circuit",
-      "lc_keypad_premium"
-    ],
-    "tagsPerFamily": [],
-    "tagsPerUnit": []
-  },
-  {
-    "id": "audio_zones",
-    "label": "Audio zones",
-    "inputType": "qty_range",
-    "categoryId": "audio",
-    "sourceOptionIds": [
-      "au_zone_essential",
-      "au_zone_signature",
-      "au_zone_premium",
-      "au_zone_ultimate"
-    ],
-    "tagsPerFamily": ["needs_network", "needs_rack"],
-    "tagsPerUnit": ["rack_unit"]
-  },
-  {
-    "id": "media_systems",
-    "label": "Media systems",
-    "inputType": "qty_range",
-    "categoryId": "media_system",
-    "sourceOptionIds": [
-      "mc_essential",
-      "mc_signature",
-      "mc_premium",
-      "mc_ultimate"
-    ],
-    "tagsPerFamily": ["needs_network", "needs_rack"],
-    "tagsPerUnit": ["rack_unit"]
-  }
-],
-
-  
-  "rules": {
-    "networkAllowance": {
-      "label": "Network allowance",
-      "amountPerRoom": 750,
-      "appliesIfRoomHasAnyTags": ["needs_network"]
+    {
+      "id": "audio_zones",
+      "label": "Audio zones",
+      "inputType": "qty_range",
+      "categoryId": "audio",
+      "sourceOptionIds": [
+        "au_zone_essential",
+        "au_zone_signature",
+        "au_zone_premium",
+        "au_zone_ultimate"
+      ],
+      "tagsPerFamily": [],
+      "tagsPerUnit": [],
+      "networkPortsPerUnit": 1
     },
-    "rackAllowance": {
-      "label": "Rack allowance",
-      "baseAmount": 2500,
-      "amountPerRackUnitTag": 250,
-      "appliesIfProjectHasAnyTags": ["needs_rack"],
-      "rackUnitTag": "rack_unit"
+    {
+      "id": "media_systems",
+      "label": "Media systems",
+      "inputType": "qty_range",
+      "categoryId": "media_system",
+      "sourceOptionIds": [
+        "ms_essential",
+        "ms_signature",
+        "ms_premium",
+        "ms_ultimate"
+      ],
+      "tagsPerFamily": [],
+      "tagsPerUnit": [],
+      "networkPortsPerUnit": 6
     }
-  }
+  ],
+  "rules": {}
 }
