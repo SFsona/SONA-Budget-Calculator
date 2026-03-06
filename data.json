@@ -104,14 +104,25 @@
       "roomAddon": { "every": 13, "amount": 54 }
     },
 
-    { "id": "au_zone_essential", "categoryId": "audio", "label": "Essential music zone", "inputType": "qty", "price": 1308, "tags": [], "networkPortsPerUnit": 1 },
-    { "id": "au_zone_signature", "categoryId": "audio", "label": "Signature music zone", "inputType": "qty", "price": 2195, "tags": [], "networkPortsPerUnit": 1 },
-    { "id": "au_zone_premium", "categoryId": "audio", "label": "Premium music zone", "inputType": "qty", "price": 4872, "tags": [], "networkPortsPerUnit": 2 },
-    { "id": "au_zone_ultimate", "categoryId": "audio", "label": "Ultimate music zone", "inputType": "qty", "price": 5575, "tags": [], "networkPortsPerUnit": 2 },
+    { "id": "au_zone_essential", "categoryId": "audio", "label": "Essential music zone", "inputType": "qty", "price": 1500, "tags": [], "networkPortsPerUnit": 1 },
+    { "id": "au_zone_signature", "categoryId": "audio", "label": "Signature music zone", "inputType": "qty", "price": 1800, "tags": [], "networkPortsPerUnit": 1 },
+    { "id": "au_zone_premium", "categoryId": "audio", "label": "Premium music zone", "inputType": "qty", "price": 2800, "tags": [], "networkPortsPerUnit": 1 },
+    { "id": "au_zone_ultimate", "categoryId": "audio", "label": "Ultimate music zone", "inputType": "qty", "price": 3500, "tags": [], "networkPortsPerUnit": 1 },
 
-    { "id": "ms_essential", "categoryId": "media_system", "label": "Essential media system", "inputType": "choice", "groupId": "media_system", "price": 6000, "tags": [], "networkPortsPerUnit": 6 },
-    { "id": "ms_signature", "categoryId": "media_system", "label": "Signature media system", "inputType": "choice", "groupId": "media_system", "price": 10000, "tags": [], "networkPortsPerUnit": 4 },
-    { "id": "ms_premium", "categoryId": "media_system", "label": "Premium media system", "inputType": "choice", "groupId": "media_system", "price": 15000, "tags": [], "networkPortsPerUnit": 5 },
+    { "id": "vid_tv_std_40_43", "categoryId": "video", "label": "Standard 40-43\" TV", "inputType": "qty", "price": 1130, "tags": [] },
+    { "id": "vid_tv_frame_40_43", "categoryId": "video", "label": "Frame Style 40-43\" TV", "inputType": "qty", "price": 1230, "tags": [] },
+    { "id": "vid_tv_std_55", "categoryId": "video", "label": "Standard 55\" TV", "inputType": "qty", "price": 1630, "tags": [] },
+    { "id": "vid_tv_frame_55", "categoryId": "video", "label": "Frame Style 55\" TV", "inputType": "qty", "price": 1830, "tags": [] },
+    { "id": "vid_tv_std_65", "categoryId": "video", "label": "Standard 65\" TV", "inputType": "qty", "price": 2130, "tags": [] },
+    { "id": "vid_tv_frame_65", "categoryId": "video", "label": "Frame Style 65\" TV", "inputType": "qty", "price": 2330, "tags": [] },
+    { "id": "vid_tv_std_75", "categoryId": "video", "label": "Standard 75\" TV", "inputType": "qty", "price": 3030, "tags": [] },
+    { "id": "vid_tv_frame_75", "categoryId": "video", "label": "Frame Style 75\" TV", "inputType": "qty", "price": 3330, "tags": [] },
+    { "id": "vid_tv_std_85", "categoryId": "video", "label": "Standard 85\" TV", "inputType": "qty", "price": 4130, "tags": [] },
+    { "id": "vid_tv_frame_85", "categoryId": "video", "label": "Frame Style 85\" TV", "inputType": "qty", "price": 4330, "tags": [] },
+
+    { "id": "ms_essential", "categoryId": "media_system", "label": "Essential media system", "inputType": "choice", "groupId": "media_system", "price": 3570, "tags": [], "networkPortsPerUnit": 6 },
+    { "id": "ms_signature", "categoryId": "media_system", "label": "Signature media system", "inputType": "choice", "groupId": "media_system", "price": 10000, "tags": [], "networkPortsPerUnit": 6 },
+    { "id": "ms_premium", "categoryId": "media_system", "label": "Premium media system", "inputType": "choice", "groupId": "media_system", "price": 9250, "tags": [], "networkPortsPerUnit": 6 },
     { "id": "ms_ultimate", "categoryId": "media_system", "label": "Ultimate media system", "inputType": "choice", "groupId": "media_system", "price": 20000, "tags": [], "networkPortsPerUnit": 6 }
   ],
   "rangeFamilies": [
