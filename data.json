@@ -1,5 +1,5 @@
 {
-  "currencySymbol": "£",
+  "currencySymbol": "\u00a3",
   "vatRate": 0.2,
   "roomTypes": [
     "Hallway and landing",
@@ -12,12 +12,30 @@
     "Leisure"
   ],
   "categories": [
-    { "id": "lighting_control", "label": "Lighting control" },
-    { "id": "lighting_fittings", "label": "Lighting fittings" },
-    { "id": "shading", "label": "Shading" },
-    { "id": "audio", "label": "Audio" },
-    { "id": "video", "label": "Video" },
-    { "id": "media_system", "label": "Media system" }
+    {
+      "id": "lighting_control",
+      "label": "Lighting control"
+    },
+    {
+      "id": "lighting_fittings",
+      "label": "Lighting fittings"
+    },
+    {
+      "id": "shading",
+      "label": "Shading"
+    },
+    {
+      "id": "audio",
+      "label": "Audio"
+    },
+    {
+      "id": "video",
+      "label": "Video"
+    },
+    {
+      "id": "media_system",
+      "label": "Media system"
+    }
   ],
   "motionSensors": {
     "local": 196,
@@ -32,50 +50,356 @@
     "routerCost": 1323,
     "switchCost": 1195,
     "switchPortsPerUnit": 23,
-    "accessPointCost": 338
+    "accessPointTypes": [
+      {
+        "id": "ap_standard",
+        "label": "Standard access point",
+        "price": 215
+      },
+      {
+        "id": "ap_advanced",
+        "label": "Advanced access point",
+        "price": 305
+      }
+    ]
   },
   "options": [
-    { "id": "lc_keypad_pico_single", "categoryId": "lighting_control", "label": "Pico single column", "inputType": "qty", "price": 294, "tags": ["keypad", "keypad_wireless"] },
-    { "id": "lc_keypad_pico_dual", "categoryId": "lighting_control", "label": "Pico dual column", "inputType": "qty", "price": 362, "tags": ["keypad", "keypad_wireless"] },
-    { "id": "lc_keypad_vierti_single", "categoryId": "lighting_control", "label": "Vierti keypad single column", "inputType": "qty", "price": 501, "tags": ["keypad", "keypad_wireless"] },
-    { "id": "lc_keypad_vierti_dual", "categoryId": "lighting_control", "label": "Vierti keypad dual column", "inputType": "qty", "price": 583, "tags": ["keypad", "keypad_wireless"] },
-    { "id": "lc_keypad_vierti_dimmer_single", "categoryId": "lighting_control", "label": "Vierti keypad with dimmer single column", "inputType": "qty", "price": 562, "tags": ["keypad", "keypad_wireless"] },
-    { "id": "lc_keypad_vierti_dimmer_dual", "categoryId": "lighting_control", "label": "Vierti keypad with dimmer dual column", "inputType": "qty", "price": 644, "tags": ["keypad", "keypad_wireless"] },
-
-    { "id": "lc_keypad_horizon_polymer_2", "categoryId": "lighting_control", "label": "Horizon 2 polymer", "inputType": "qty", "price": 448, "tags": ["keypad", "keypad_wired", "motion_local"] },
-    { "id": "lc_keypad_horizon_metal_2", "categoryId": "lighting_control", "label": "Horizon 2 metal", "inputType": "qty", "price": 492, "tags": ["keypad", "keypad_wired", "motion_local"] },
-
-    { "id": "lc_keypad_palladiom_polymer_single", "categoryId": "lighting_control", "label": "Palladiom polymer single column", "inputType": "qty", "price": 446, "tags": ["keypad", "keypad_wired", "motion_head"] },
-    { "id": "lc_keypad_palladiom_metal_single", "categoryId": "lighting_control", "label": "Palladiom metal single column", "inputType": "qty", "price": 579, "tags": ["keypad", "keypad_wired", "motion_head"] },
-    { "id": "lc_keypad_palladiom_bespoke_single", "categoryId": "lighting_control", "label": "Palladiom bespoke single column", "inputType": "qty", "price": 663, "tags": ["keypad", "keypad_wired", "motion_head"] },
-    { "id": "lc_keypad_palladiom_polymer_dual", "categoryId": "lighting_control", "label": "Palladiom polymer dual column", "inputType": "qty", "price": 604, "tags": ["keypad", "keypad_wired", "motion_head"] },
-    { "id": "lc_keypad_palladiom_metal_dual", "categoryId": "lighting_control", "label": "Palladiom metal dual column", "inputType": "qty", "price": 824, "tags": ["keypad", "keypad_wired", "motion_head"] },
-    { "id": "lc_keypad_palladiom_bespoke_dual", "categoryId": "lighting_control", "label": "Palladiom bespoke dual column", "inputType": "qty", "price": 891, "tags": ["keypad", "keypad_wired", "motion_head"] },
-
-    { "id": "lc_keypad_alisse_single", "categoryId": "lighting_control", "label": "Alisse single column", "inputType": "qty", "price": 671, "tags": ["keypad", "keypad_wired", "motion_local"] },
-    { "id": "lc_keypad_alisse_dual", "categoryId": "lighting_control", "label": "Alisse dual column", "inputType": "qty", "price": 805, "tags": ["keypad", "keypad_wired", "motion_local"] },
-
-    { "id": "lc_keypad_aviena_dual", "categoryId": "lighting_control", "label": "Aviena dual toggle", "inputType": "qty", "price": 774, "tags": ["keypad", "keypad_wired", "motion_head"] },
-    { "id": "lc_keypad_aviena_quad", "categoryId": "lighting_control", "label": "Aviena quad toggle", "inputType": "qty", "price": 941, "tags": ["keypad", "keypad_wired", "motion_head"] },
-
-    { "id": "lc_keypad_tap", "categoryId": "lighting_control", "label": "TAP", "inputType": "qty", "price": 957, "tags": ["keypad", "keypad_wired", "motion_head"] },
-
-    { "id": "lc_keypad_sentido_dual", "categoryId": "lighting_control", "label": "Sentido dual", "inputType": "qty", "price": 692, "tags": ["keypad", "keypad_wired", "motion_head"] },
-    { "id": "lc_keypad_sentido_quad", "categoryId": "lighting_control", "label": "Sentido quad", "inputType": "qty", "price": 720, "tags": ["keypad", "keypad_wired", "motion_head"] },
-
-    { "id": "lc_motion_sensor", "categoryId": "lighting_control", "label": "Motion sensor", "inputType": "qty", "price": 0, "tags": ["motion_sensor"] },
-
-    { "id": "lc_wireless_standard_circuit", "categoryId": "lighting_control", "label": "Wireless standard circuit (downlight, wall, lamp, pendant)", "inputType": "qty", "price": 190, "tags": ["circuit_wireless"] },
-    { "id": "lc_wireless_architectural_circuit", "categoryId": "lighting_control", "label": "Wireless architectural circuit (linear, in ground, in wall)", "inputType": "qty", "price": 315, "tags": ["circuit_wireless"] },
-
-    { "id": "lc_wired_standard_circuit", "categoryId": "lighting_control", "label": "Wired standard circuit (wall, lamp, pendant)", "inputType": "qty", "price": 0, "tags": ["circuit_wired"], "roomAddon": { "every": 4, "amount": 816 } },
-    { "id": "lc_wired_dali_fitting", "categoryId": "lighting_control", "label": "Wired DALI fitting", "inputType": "qty", "price": 0, "tags": ["circuit_wired"], "roomAddon": { "every": 64, "amount": 1170 } },
-
-    { "id": "lf_downlight_essential", "categoryId": "lighting_fittings", "label": "Essential downlight", "inputType": "qty", "price": 115, "tags": [] },
-    { "id": "lf_downlight_signature", "categoryId": "lighting_fittings", "label": "Signature downlight", "inputType": "qty", "price": 155, "tags": [] },
-    { "id": "lf_downlight_premium", "categoryId": "lighting_fittings", "label": "Premium downlight", "inputType": "qty", "price": 180, "tags": [] },
-    { "id": "lf_linear_led_m", "categoryId": "lighting_fittings", "label": "Linear LED metres", "inputType": "qty", "price": 56, "tags": [] },
-
+    {
+      "id": "lc_keypad_pico_single",
+      "categoryId": "lighting_control",
+      "label": "Pico single column",
+      "inputType": "qty",
+      "price": 294,
+      "tags": [
+        "keypad",
+        "keypad_wireless"
+      ]
+    },
+    {
+      "id": "lc_keypad_pico_dual",
+      "categoryId": "lighting_control",
+      "label": "Pico dual column",
+      "inputType": "qty",
+      "price": 362,
+      "tags": [
+        "keypad",
+        "keypad_wireless"
+      ]
+    },
+    {
+      "id": "lc_keypad_vierti_single",
+      "categoryId": "lighting_control",
+      "label": "Vierti keypad single column",
+      "inputType": "qty",
+      "price": 501,
+      "tags": [
+        "keypad",
+        "keypad_wireless"
+      ]
+    },
+    {
+      "id": "lc_keypad_vierti_dual",
+      "categoryId": "lighting_control",
+      "label": "Vierti keypad dual column",
+      "inputType": "qty",
+      "price": 583,
+      "tags": [
+        "keypad",
+        "keypad_wireless"
+      ]
+    },
+    {
+      "id": "lc_keypad_vierti_dimmer_single",
+      "categoryId": "lighting_control",
+      "label": "Vierti keypad with dimmer single column",
+      "inputType": "qty",
+      "price": 562,
+      "tags": [
+        "keypad",
+        "keypad_wireless"
+      ]
+    },
+    {
+      "id": "lc_keypad_vierti_dimmer_dual",
+      "categoryId": "lighting_control",
+      "label": "Vierti keypad with dimmer dual column",
+      "inputType": "qty",
+      "price": 644,
+      "tags": [
+        "keypad",
+        "keypad_wireless"
+      ]
+    },
+    {
+      "id": "lc_keypad_horizon_polymer_2",
+      "categoryId": "lighting_control",
+      "label": "Horizon 2 polymer",
+      "inputType": "qty",
+      "price": 448,
+      "tags": [
+        "keypad",
+        "keypad_wired",
+        "motion_local"
+      ]
+    },
+    {
+      "id": "lc_keypad_horizon_metal_2",
+      "categoryId": "lighting_control",
+      "label": "Horizon 2 metal",
+      "inputType": "qty",
+      "price": 492,
+      "tags": [
+        "keypad",
+        "keypad_wired",
+        "motion_local"
+      ]
+    },
+    {
+      "id": "lc_keypad_palladiom_polymer_single",
+      "categoryId": "lighting_control",
+      "label": "Palladiom polymer single column",
+      "inputType": "qty",
+      "price": 446,
+      "tags": [
+        "keypad",
+        "keypad_wired",
+        "motion_head"
+      ]
+    },
+    {
+      "id": "lc_keypad_palladiom_metal_single",
+      "categoryId": "lighting_control",
+      "label": "Palladiom metal single column",
+      "inputType": "qty",
+      "price": 579,
+      "tags": [
+        "keypad",
+        "keypad_wired",
+        "motion_head"
+      ]
+    },
+    {
+      "id": "lc_keypad_palladiom_bespoke_single",
+      "categoryId": "lighting_control",
+      "label": "Palladiom bespoke single column",
+      "inputType": "qty",
+      "price": 663,
+      "tags": [
+        "keypad",
+        "keypad_wired",
+        "motion_head"
+      ]
+    },
+    {
+      "id": "lc_keypad_palladiom_polymer_dual",
+      "categoryId": "lighting_control",
+      "label": "Palladiom polymer dual column",
+      "inputType": "qty",
+      "price": 604,
+      "tags": [
+        "keypad",
+        "keypad_wired",
+        "motion_head"
+      ]
+    },
+    {
+      "id": "lc_keypad_palladiom_metal_dual",
+      "categoryId": "lighting_control",
+      "label": "Palladiom metal dual column",
+      "inputType": "qty",
+      "price": 824,
+      "tags": [
+        "keypad",
+        "keypad_wired",
+        "motion_head"
+      ]
+    },
+    {
+      "id": "lc_keypad_palladiom_bespoke_dual",
+      "categoryId": "lighting_control",
+      "label": "Palladiom bespoke dual column",
+      "inputType": "qty",
+      "price": 891,
+      "tags": [
+        "keypad",
+        "keypad_wired",
+        "motion_head"
+      ]
+    },
+    {
+      "id": "lc_keypad_alisse_single",
+      "categoryId": "lighting_control",
+      "label": "Alisse single column",
+      "inputType": "qty",
+      "price": 671,
+      "tags": [
+        "keypad",
+        "keypad_wired",
+        "motion_local"
+      ]
+    },
+    {
+      "id": "lc_keypad_alisse_dual",
+      "categoryId": "lighting_control",
+      "label": "Alisse dual column",
+      "inputType": "qty",
+      "price": 805,
+      "tags": [
+        "keypad",
+        "keypad_wired",
+        "motion_local"
+      ]
+    },
+    {
+      "id": "lc_keypad_aviena_dual",
+      "categoryId": "lighting_control",
+      "label": "Aviena dual toggle",
+      "inputType": "qty",
+      "price": 774,
+      "tags": [
+        "keypad",
+        "keypad_wired",
+        "motion_head"
+      ]
+    },
+    {
+      "id": "lc_keypad_aviena_quad",
+      "categoryId": "lighting_control",
+      "label": "Aviena quad toggle",
+      "inputType": "qty",
+      "price": 941,
+      "tags": [
+        "keypad",
+        "keypad_wired",
+        "motion_head"
+      ]
+    },
+    {
+      "id": "lc_keypad_tap",
+      "categoryId": "lighting_control",
+      "label": "TAP",
+      "inputType": "qty",
+      "price": 957,
+      "tags": [
+        "keypad",
+        "keypad_wired",
+        "motion_head"
+      ]
+    },
+    {
+      "id": "lc_keypad_sentido_dual",
+      "categoryId": "lighting_control",
+      "label": "Sentido dual",
+      "inputType": "qty",
+      "price": 692,
+      "tags": [
+        "keypad",
+        "keypad_wired",
+        "motion_head"
+      ]
+    },
+    {
+      "id": "lc_keypad_sentido_quad",
+      "categoryId": "lighting_control",
+      "label": "Sentido quad",
+      "inputType": "qty",
+      "price": 720,
+      "tags": [
+        "keypad",
+        "keypad_wired",
+        "motion_head"
+      ]
+    },
+    {
+      "id": "lc_motion_sensor",
+      "categoryId": "lighting_control",
+      "label": "Motion sensor",
+      "inputType": "qty",
+      "price": 0,
+      "tags": [
+        "motion_sensor"
+      ]
+    },
+    {
+      "id": "lc_wireless_standard_circuit",
+      "categoryId": "lighting_control",
+      "label": "Wireless standard circuit (downlight, wall, lamp, pendant)",
+      "inputType": "qty",
+      "price": 190,
+      "tags": [
+        "circuit_wireless"
+      ]
+    },
+    {
+      "id": "lc_wireless_architectural_circuit",
+      "categoryId": "lighting_control",
+      "label": "Wireless architectural circuit (linear, in ground, in wall)",
+      "inputType": "qty",
+      "price": 315,
+      "tags": [
+        "circuit_wireless"
+      ]
+    },
+    {
+      "id": "lc_wired_standard_circuit",
+      "categoryId": "lighting_control",
+      "label": "Wired standard circuit (wall, lamp, pendant)",
+      "inputType": "qty",
+      "price": 0,
+      "tags": [
+        "circuit_wired"
+      ],
+      "roomAddon": {
+        "every": 4,
+        "amount": 816
+      }
+    },
+    {
+      "id": "lc_wired_dali_fitting",
+      "categoryId": "lighting_control",
+      "label": "Wired DALI fitting",
+      "inputType": "qty",
+      "price": 0,
+      "tags": [
+        "circuit_wired"
+      ],
+      "roomAddon": {
+        "every": 64,
+        "amount": 1170
+      }
+    },
+    {
+      "id": "lf_downlight_essential",
+      "categoryId": "lighting_fittings",
+      "label": "Essential downlight",
+      "inputType": "qty",
+      "price": 115,
+      "tags": []
+    },
+    {
+      "id": "lf_downlight_signature",
+      "categoryId": "lighting_fittings",
+      "label": "Signature downlight",
+      "inputType": "qty",
+      "price": 155,
+      "tags": []
+    },
+    {
+      "id": "lf_downlight_premium",
+      "categoryId": "lighting_fittings",
+      "label": "Premium downlight",
+      "inputType": "qty",
+      "price": 180,
+      "tags": []
+    },
+    {
+      "id": "lf_linear_led_m",
+      "categoryId": "lighting_fittings",
+      "label": "Linear LED metres",
+      "inputType": "qty",
+      "price": 56,
+      "tags": []
+    },
     {
       "id": "lf_inwall_ground_standard",
       "categoryId": "lighting_fittings",
@@ -83,7 +407,10 @@
       "inputType": "qty",
       "price": 105,
       "tags": [],
-      "roomAddon": { "every": 13, "amount": 54 }
+      "roomAddon": {
+        "every": 13,
+        "amount": 54
+      }
     },
     {
       "id": "lf_inwall_ground_mini",
@@ -92,7 +419,10 @@
       "inputType": "qty",
       "price": 81,
       "tags": [],
-      "roomAddon": { "every": 13, "amount": 54 }
+      "roomAddon": {
+        "every": 13,
+        "amount": 54
+      }
     },
     {
       "id": "lf_inwall_floorwash",
@@ -101,29 +431,167 @@
       "inputType": "qty",
       "price": 94,
       "tags": [],
-      "roomAddon": { "every": 13, "amount": 54 }
+      "roomAddon": {
+        "every": 13,
+        "amount": 54
+      }
     },
-
-    { "id": "au_zone_essential", "categoryId": "audio", "label": "Essential music zone", "inputType": "qty", "price": 1500, "tags": [], "networkPortsPerUnit": 1 },
-    { "id": "au_zone_signature", "categoryId": "audio", "label": "Signature music zone", "inputType": "qty", "price": 1800, "tags": [], "networkPortsPerUnit": 1 },
-    { "id": "au_zone_premium", "categoryId": "audio", "label": "Premium music zone", "inputType": "qty", "price": 2800, "tags": [], "networkPortsPerUnit": 1 },
-    { "id": "au_zone_ultimate", "categoryId": "audio", "label": "Ultimate music zone", "inputType": "qty", "price": 3500, "tags": [], "networkPortsPerUnit": 1 },
-
-    { "id": "vid_tv_std_40_43", "categoryId": "video", "label": "Standard 40-43\" TV", "inputType": "qty", "price": 1130, "tags": [] },
-    { "id": "vid_tv_frame_40_43", "categoryId": "video", "label": "Frame Style 40-43\" TV", "inputType": "qty", "price": 1230, "tags": [] },
-    { "id": "vid_tv_std_55", "categoryId": "video", "label": "Standard 55\" TV", "inputType": "qty", "price": 1630, "tags": [] },
-    { "id": "vid_tv_frame_55", "categoryId": "video", "label": "Frame Style 55\" TV", "inputType": "qty", "price": 1830, "tags": [] },
-    { "id": "vid_tv_std_65", "categoryId": "video", "label": "Standard 65\" TV", "inputType": "qty", "price": 2130, "tags": [] },
-    { "id": "vid_tv_frame_65", "categoryId": "video", "label": "Frame Style 65\" TV", "inputType": "qty", "price": 2330, "tags": [] },
-    { "id": "vid_tv_std_75", "categoryId": "video", "label": "Standard 75\" TV", "inputType": "qty", "price": 3030, "tags": [] },
-    { "id": "vid_tv_frame_75", "categoryId": "video", "label": "Frame Style 75\" TV", "inputType": "qty", "price": 3330, "tags": [] },
-    { "id": "vid_tv_std_85", "categoryId": "video", "label": "Standard 85\" TV", "inputType": "qty", "price": 4130, "tags": [] },
-    { "id": "vid_tv_frame_85", "categoryId": "video", "label": "Frame Style 85\" TV", "inputType": "qty", "price": 4330, "tags": [] },
-
-    { "id": "ms_essential", "categoryId": "media_system", "label": "Essential media system", "inputType": "choice", "groupId": "media_system", "price": 3570, "tags": [], "networkPortsPerUnit": 6 },
-    { "id": "ms_signature", "categoryId": "media_system", "label": "Signature media system", "inputType": "choice", "groupId": "media_system", "price": 10000, "tags": [], "networkPortsPerUnit": 6 },
-    { "id": "ms_premium", "categoryId": "media_system", "label": "Premium media system", "inputType": "choice", "groupId": "media_system", "price": 9250, "tags": [], "networkPortsPerUnit": 6 },
-    { "id": "ms_ultimate", "categoryId": "media_system", "label": "Ultimate media system", "inputType": "choice", "groupId": "media_system", "price": 20000, "tags": [], "networkPortsPerUnit": 6 }
+    {
+      "id": "au_zone_essential",
+      "categoryId": "audio",
+      "label": "Essential music zone",
+      "inputType": "qty",
+      "price": 1500,
+      "tags": [],
+      "networkPortsPerUnit": 1
+    },
+    {
+      "id": "au_zone_signature",
+      "categoryId": "audio",
+      "label": "Signature music zone",
+      "inputType": "qty",
+      "price": 1800,
+      "tags": [],
+      "networkPortsPerUnit": 1
+    },
+    {
+      "id": "au_zone_premium",
+      "categoryId": "audio",
+      "label": "Premium music zone",
+      "inputType": "qty",
+      "price": 2800,
+      "tags": [],
+      "networkPortsPerUnit": 1
+    },
+    {
+      "id": "au_zone_ultimate",
+      "categoryId": "audio",
+      "label": "Ultimate music zone",
+      "inputType": "qty",
+      "price": 3500,
+      "tags": [],
+      "networkPortsPerUnit": 1
+    },
+    {
+      "id": "vid_tv_std_40_43",
+      "categoryId": "video",
+      "label": "Standard 40-43\" TV",
+      "inputType": "qty",
+      "price": 1130,
+      "tags": []
+    },
+    {
+      "id": "vid_tv_frame_40_43",
+      "categoryId": "video",
+      "label": "Frame Style 40-43\" TV",
+      "inputType": "qty",
+      "price": 1230,
+      "tags": []
+    },
+    {
+      "id": "vid_tv_std_55",
+      "categoryId": "video",
+      "label": "Standard 55\" TV",
+      "inputType": "qty",
+      "price": 1630,
+      "tags": []
+    },
+    {
+      "id": "vid_tv_frame_55",
+      "categoryId": "video",
+      "label": "Frame Style 55\" TV",
+      "inputType": "qty",
+      "price": 1830,
+      "tags": []
+    },
+    {
+      "id": "vid_tv_std_65",
+      "categoryId": "video",
+      "label": "Standard 65\" TV",
+      "inputType": "qty",
+      "price": 2130,
+      "tags": []
+    },
+    {
+      "id": "vid_tv_frame_65",
+      "categoryId": "video",
+      "label": "Frame Style 65\" TV",
+      "inputType": "qty",
+      "price": 2330,
+      "tags": []
+    },
+    {
+      "id": "vid_tv_std_75",
+      "categoryId": "video",
+      "label": "Standard 75\" TV",
+      "inputType": "qty",
+      "price": 3030,
+      "tags": []
+    },
+    {
+      "id": "vid_tv_frame_75",
+      "categoryId": "video",
+      "label": "Frame Style 75\" TV",
+      "inputType": "qty",
+      "price": 3330,
+      "tags": []
+    },
+    {
+      "id": "vid_tv_std_85",
+      "categoryId": "video",
+      "label": "Standard 85\" TV",
+      "inputType": "qty",
+      "price": 4130,
+      "tags": []
+    },
+    {
+      "id": "vid_tv_frame_85",
+      "categoryId": "video",
+      "label": "Frame Style 85\" TV",
+      "inputType": "qty",
+      "price": 4330,
+      "tags": []
+    },
+    {
+      "id": "ms_essential",
+      "categoryId": "media_system",
+      "label": "Essential media system",
+      "inputType": "choice",
+      "groupId": "media_system",
+      "price": 3570,
+      "tags": [],
+      "networkPortsPerUnit": 6
+    },
+    {
+      "id": "ms_signature",
+      "categoryId": "media_system",
+      "label": "Signature media system",
+      "inputType": "choice",
+      "groupId": "media_system",
+      "price": 10000,
+      "tags": [],
+      "networkPortsPerUnit": 6
+    },
+    {
+      "id": "ms_premium",
+      "categoryId": "media_system",
+      "label": "Premium media system",
+      "inputType": "choice",
+      "groupId": "media_system",
+      "price": 9250,
+      "tags": [],
+      "networkPortsPerUnit": 6
+    },
+    {
+      "id": "ms_ultimate",
+      "categoryId": "media_system",
+      "label": "Ultimate media system",
+      "inputType": "choice",
+      "groupId": "media_system",
+      "price": 20000,
+      "tags": [],
+      "networkPortsPerUnit": 6
+    }
   ],
   "rangeFamilies": [
     {
@@ -141,7 +609,10 @@
         "lc_keypad_vierti_dimmer_dual"
       ],
       "tagsPerFamily": [],
-      "tagsPerUnit": ["keypad", "keypad_wireless"],
+      "tagsPerUnit": [
+        "keypad",
+        "keypad_wireless"
+      ],
       "networkPortsPerUnit": 0
     },
     {
@@ -168,7 +639,10 @@
         "lc_keypad_sentido_quad"
       ],
       "tagsPerFamily": [],
-      "tagsPerUnit": ["keypad", "keypad_wired"],
+      "tagsPerUnit": [
+        "keypad",
+        "keypad_wired"
+      ],
       "networkPortsPerUnit": 0
     },
     {
