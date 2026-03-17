@@ -409,6 +409,40 @@ function computeLightingProcessorAddOnsExVat() {
   return addOns;
 }
 
+function computeCctvAddOnsExVat() {
+  const rules = state.data?.rules?.cctvStorage || [];
+  if (!rules.length) return [];
+
+  let totalCameras = 0;
+
+  for (const room of state.rooms) {
+    for (const [optionId, qty] of Object.entries(room.qty)) {
+      const opt = optionById(optionId);
+      if (!opt) continue;
+      if (opt.categoryId !== "cctv") continue;
+
+      totalCameras += Math.max(0, Number(qty || 0));
+    }
+  }
+
+  if (totalCameras <= 0) return [];
+
+  const match = rules.find(rule => {
+    const min = Number(rule.minQty || 0);
+    const max = Number(rule.maxQty || 0);
+    return totalCameras >= min && totalCameras <= max;
+  });
+
+  if (!match) return [];
+
+  return [{
+    id: "cctvStorage",
+    label: match.label || "CCTV storage",
+    amountExVat: Number(match.amount || 0),
+    detail: `${totalCameras} camera${totalCameras === 1 ? "" : "s"}`
+  }];
+}
+
 function computeRoomPorts(room) {
   let ports = 0;
 
@@ -482,6 +516,7 @@ function computeRuleAddOnsExVat() {
   const addOns = [];
 
   addOns.push(...computeLightingProcessorAddOnsExVat());
+  addOns.push(...computeCctvAddOnsExVat());
 
   const net = computeNetworkPorts();
   if (state.includeNetwork && net.ports > 0) {
