@@ -47,9 +47,9 @@
     "wiredCost": 2477
   },
   "network": {
-    "routerCost": 1323,
-    "switchCost": 1195,
-    "switchPortsPerUnit": 23,
+    "routerCost": 1190,
+    "switchCost": 1070,
+    "switchPortsPerUnit": 24,
     "accessPointTypes": [
       {
         "id": "ap_standard",
