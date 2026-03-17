@@ -35,6 +35,10 @@
     {
       "id": "media_system",
       "label": "Media system"
+    },
+    {
+      "id": "cctv",
+      "label": "CCTV"
     }
   ],
   "motionSensors": {
@@ -591,8 +595,35 @@
       "price": 20000,
       "tags": [],
       "networkPortsPerUnit": 6
+    },
+    {
+     "id": "cctv_standard_camera",
+     "categoryId": "cctv",
+     "label": "Standard camera",
+     "inputType": "qty",
+     "price": 305,
+     "networkPortsPerUnit": 1,
+     "tags": []
+    },
+    {
+     "id": "cctv_advanced_camera",
+     "categoryId": "cctv",
+     "label": "Advanced camera",
+     "inputType": "qty",
+     "price": 560,
+     "networkPortsPerUnit": 1,
+     "tags": []
+    },
+    {
+    "id": "cctv_ptz_camera",
+    "categoryId": "cctv",
+    "label": "PTZ camera",
+    "inputType": "qty",
+    "price": 485,
+    "networkPortsPerUnit": 1,
+    "tags": []
     }
-  ],
+    ],
   "rangeFamilies": [
     {
       "id": "keypads_wireless",
@@ -676,5 +707,11 @@
       "networkPortsPerUnit": 6
     }
   ],
-  "rules": {}
+  "rules": {
+  "cctvStorage": [
+    { "minQty": 1, "maxQty": 8, "label": "CCTV HDD add-on", "amount": 300 },
+    { "minQty": 9, "maxQty": 26, "label": "CCTV NVR", "amount": 1950 },
+    { "minQty": 27, "maxQty": 32, "label": "CCTV NVR Pro", "amount": 2400 }
+  ]
+}
 }
