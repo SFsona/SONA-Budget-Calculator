@@ -20,7 +20,7 @@ const state = {
   useRanges: true,
   includeNetwork: false,
   project: {
-    accessPointsQty: 0
+    accessPointQtyById: {}
   }
 };
 
@@ -34,6 +34,51 @@ function currencySymbol() {
 
 function vatRate() {
   return Number(state.data?.vatRate ?? 0.2);
+}
+
+function getAccessPointTypes() {
+  const types = state.data?.network?.accessPointTypes;
+  if (Array.isArray(types) && types.length) {
+    return types.map(t => ({
+      id: String(t.id || ""),
+      label: String(t.label || "Access point"),
+      price: Number(t.price || 0),
+      portsPerUnit: Math.max(0, Number(t.portsPerUnit || 1))
+    })).filter(t => t.id);
+  }
+
+  const legacyPrice = Number(state.data?.network?.accessPointCost || 0);
+
+  return [{
+    id: "ap_advanced",
+    label: "Advanced access point",
+    price: legacyPrice,
+    portsPerUnit: 1
+  }];
+}
+
+function ensureProjectNetworkState() {
+  const next = {};
+  for (const ap of getAccessPointTypes()) {
+    next[ap.id] = Math.max(0, Number(state.project?.accessPointQtyById?.[ap.id] || 0));
+  }
+  state.project.accessPointQtyById = next;
+}
+
+function getAccessPointQty(apId) {
+  return Math.max(0, Number(state.project?.accessPointQtyById?.[apId] || 0));
+}
+
+function setAccessPointQty(apId, qty) {
+  ensureProjectNetworkState();
+  state.project.accessPointQtyById[apId] = Math.max(0, Number(qty || 0));
+}
+
+function totalAccessPointPorts() {
+  return getAccessPointTypes().reduce(
+    (sum, ap) => sum + getAccessPointQty(ap.id) * Math.max(0, Number(ap.portsPerUnit || 1)),
+    0
+  );
 }
 
 function money(value) {
@@ -54,6 +99,7 @@ function moneyRangeDisplay(low, high) {
 
 function setVatModeUI() {
   byId("vatMode").textContent = state.includeVat ? "Inc VAT" : "Ex VAT";
+
 }
 
 function setPills() {
@@ -104,7 +150,8 @@ function newRoom(name, type) {
     name,
     type,
     qty: {},
-    choice: {},
+
+         choice: {},
     rangeQty: {},
     lightingMode: "wireless"
   };
@@ -154,7 +201,8 @@ function renderRoomsList() {
     left.appendChild(meta);
 
     const actions = document.createElement("div");
-    const del = document.createElement("button");
+
+       const del = document.createElement("button");
     del.className = "btn btnGhost";
     del.type = "button";
     del.textContent = "Remove";
@@ -201,6 +249,7 @@ function optionIsHiddenByRangeFamilies(opt) {
   for (const fam of rangeFamilies()) {
     if ((fam.sourceOptionIds || []).includes(opt.id)) return true;
   }
+
   return false;
 }
 
@@ -247,7 +296,8 @@ function getRoomBaseTotalsExVat(room) {
   }
 
   for (const optionId of Object.values(room.choice)) {
-    const opt = optionById(optionId);
+
+       const opt = optionById(optionId);
     if (!opt) continue;
 
     const unitEx = resolveDynamicUnitPriceExVat(room, opt);
@@ -293,7 +343,8 @@ function getRoomTags(room) {
 
       tags.push(...(fam.tagsPerFamily || []));
       for (let i = 0; i < q; i++) tags.push(...(fam.tagsPerUnit || []));
-    }
+
+         }
   }
 
   return tags;
@@ -339,7 +390,8 @@ function computeLightingProcessorAddOnsExVat() {
       amountExVat: Number(p.wiredCost || 0),
       detail: ""
     });
-  }
+
+     }
 
   if (mode.wirelessUsed) {
     const wirelessCost = mode.wiredUsed
@@ -384,7 +436,7 @@ function computeRoomPorts(room) {
       const q = Math.max(0, Number(room.rangeQty?.[fam.id] || 0));
       if (!q) continue;
 
-      const per = Math.max(0, Number(fam.networkPortsPerUnit || 0));
+           const per = Math.max(0, Number(fam.networkPortsPerUnit || 0));
       ports += per * q;
     }
   }
@@ -415,8 +467,7 @@ function computeNetworkPorts() {
   if (proc.wiredUsed) ports += 1;
   if (proc.wirelessUsed) ports += 1;
 
-  const apQty = Math.max(0, Number(state.project.accessPointsQty || 0));
-  ports += apQty;
+  ports += totalAccessPointPorts();
 
   const portsPerSwitch = Math.max(1, Number(net.switchPortsPerUnit || 23));
   const switches = ports > 0 ? Math.ceil(ports / portsPerSwitch) : 0;
@@ -450,15 +501,16 @@ function computeRuleAddOnsExVat() {
   }
 
   if (state.includeNetwork) {
-    const apCost = Number(state.data?.network?.accessPointCost || 0);
-    const apQty = Math.max(0, Number(state.project.accessPointsQty || 0));
-    if (apQty > 0 && apCost > 0) {
-      addOns.push({
-        id: "wirelessAccessPoints",
-        label: "Wireless access points",
-        amountExVat: apQty * apCost,
-        detail: `${apQty} × ${money(apCost)}`
-      });
+    for (const ap of getAccessPointTypes()) {
+      const apQty = getAccessPointQty(ap.id);
+      if (apQty > 0 && ap.price > 0) {
+        addOns.push({
+          id: `wirelessAccessPoints_${ap.id}`,
+          label: ap.label,
+          amountExVat: apQty * ap.price,
+          detail: `${apQty} × ${money(ap.price)}`
+        });
+      }
     }
   }
 
@@ -530,66 +582,70 @@ function renderProjectControls() {
   title.textContent = "Project network";
   block.appendChild(title);
 
-  const row = document.createElement("div");
-  row.className = "optionRow";
-  row.style.marginBottom = "0";
+  ensureProjectNetworkState();
 
-  const main = document.createElement("div");
-  main.className = "optionMain";
+  for (const ap of getAccessPointTypes()) {
+    const row = document.createElement("div");
+    row.className = "optionRow";
+    row.style.marginBottom = "0";
 
-  const label = document.createElement("div");
-  label.className = "optionLabel";
-  label.textContent = "Wireless access points";
+    const main = document.createElement("div");
+    main.className = "optionMain";
 
-  const price = document.createElement("div");
-  price.className = "optionPrice";
-  const apCost = Number(state.data?.network?.accessPointCost || 0);
-  price.textContent = `${money(applyVat(apCost))} each`;
+    const label = document.createElement("div");
+    label.className = "optionLabel";
+    label.textContent = ap.label;
 
-  main.appendChild(label);
-  main.appendChild(price);
+    const price = document.createElement("div");
+    price.className = "optionPrice";
+    price.textContent = `${money(applyVat(ap.price))} each`;
 
-  const control = document.createElement("div");
-  const qtyWrap = document.createElement("div");
-  qtyWrap.className = "qty";
+    main.appendChild(label);
+    main.appendChild(price);
 
-  const minus = document.createElement("button");
-  minus.className = "qtyBtn";
-  minus.type = "button";
-  minus.textContent = "–";
+    const control = document.createElement("div");
+    const qtyWrap = document.createElement("div");
+    qtyWrap.className = "qty";
 
-  const val = document.createElement("div");
-  val.className = "qtyValue";
-  val.textContent = String(Math.max(0, Number(state.project.accessPointsQty || 0)));
+    const minus = document.createElement("button");
+    minus.className = "qtyBtn";
+    minus.type = "button";
+    minus.textContent = "–";
 
-  const plus = document.createElement("button");
-  plus.className = "qtyBtn";
-  plus.type = "button";
-  plus.textContent = "+";
+    const val = document.createElement("div");
+    val.className = "qtyValue";
+    val.textContent = String(getAccessPointQty(ap.id));
 
-  minus.addEventListener("click", () => {
-    const next = Math.max(0, Number(state.project.accessPointsQty || 0) - 1);
-    state.project.accessPointsQty = next;
-    val.textContent = String(next);
-    updateTotalsUI();
-  });
+       const plus = document.createElement("button");
+    plus.className = "qtyBtn";
+    plus.type = "button";
+    plus.textContent = "+";
 
-  plus.addEventListener("click", () => {
-    const next = Math.max(0, Number(state.project.accessPointsQty || 0) + 1);
-    state.project.accessPointsQty = next;
-    val.textContent = String(next);
-    updateTotalsUI();
-  });
+    minus.addEventListener("click", () => {
+      const next = Math.max(0, getAccessPointQty(ap.id) - 1);
+      setAccessPointQty(ap.id, next);
+      val.textContent = String(next);
+      updateTotalsUI();
+    });
 
-  qtyWrap.appendChild(minus);
-  qtyWrap.appendChild(val);
-  qtyWrap.appendChild(plus);
-  control.appendChild(qtyWrap);
+    plus.addEventListener("click", () => {
+      const next = Math.max(0, getAccessPointQty(ap.id) + 1);
+      setAccessPointQty(ap.id, next);
+      val.textContent = String(next);
+      updateTotalsUI();
+    });
 
-  row.appendChild(main);
-  row.appendChild(control);
+    qtyWrap.appendChild(minus);
+    qtyWrap.appendChild(val);
+    qtyWrap.appendChild(plus);
+    control.appendChild(qtyWrap);
 
-  block.appendChild(row);
+    row.appendChild(main);
+    row.appendChild(control);
+
+    block.appendChild(row);
+  }
+
   host.appendChild(block);
 }
 
@@ -650,6 +706,7 @@ function renderRoomModeToggle(room) {
 
   const btnWired = document.createElement("button");
   btnWired.type = "button";
+
   btnWired.className = "btn btnGhost";
   btnWired.textContent = "Wired";
 
@@ -695,7 +752,8 @@ function priceTextForOption(room, opt) {
   const unitEx = resolveDynamicUnitPriceExVat(room, opt);
 
   if (opt.inputType === "qty") {
-    const hasGroupedAddon = Boolean(opt.roomAddon) && Number(opt.roomAddon.amount || 0) > 0 && Number(opt.roomAddon.every || 0) > 0;
+
+       const hasGroupedAddon = Boolean(opt.roomAddon) && Number(opt.roomAddon.amount || 0) > 0 && Number(opt.roomAddon.every || 0) > 0;
     const unitIsZero = Number(unitEx || 0) === 0;
 
     if (hasGroupedAddon && unitIsZero) {
@@ -739,7 +797,7 @@ function renderOptionRow(room, opt) {
     minus.type = "button";
     minus.textContent = "–";
 
-    const val = document.createElement("div");
+       const val = document.createElement("div");
     val.className = "qtyValue";
     val.textContent = String(Number(room.qty[opt.id] || 0));
 
@@ -780,7 +838,7 @@ function renderOptionRow(room, opt) {
     input.name = `room_${room.id}_group_${opt.groupId}`;
     input.checked = room.choice[opt.groupId] === opt.id;
 
-    input.addEventListener("change", () => {
+       input.addEventListener("change", () => {
       room.choice[opt.groupId] = opt.id;
       updateTotalsUI();
     });
@@ -826,6 +884,7 @@ function renderRangeFamilyRow(room, fam) {
   qtyWrap.className = "qty";
 
   const minus = document.createElement("button");
+
   minus.className = "qtyBtn";
   minus.type = "button";
   minus.textContent = "–";
@@ -914,7 +973,7 @@ function renderActiveRoom() {
 
     if (!shouldRenderRangeRows && !shouldRenderOpts) continue;
 
-    const section = document.createElement("div");
+       const section = document.createElement("div");
     section.className = "category";
 
     const h = document.createElement("h2");
@@ -951,7 +1010,7 @@ function renderActiveRoom() {
         for (const opt of motion) section.appendChild(renderOptionRow(room, opt));
       }
 
-      if (circuits.length) {
+           if (circuits.length) {
         section.appendChild(renderSubheading(mode === "wireless" ? "Wireless circuits" : "Wired circuits"));
         for (const opt of circuits) section.appendChild(renderOptionRow(room, opt));
       }
@@ -993,7 +1052,7 @@ function renderSummary() {
       `<div class="subtitle">${room.name}</div>` +
       `<div class="summaryLine summaryLineMuted">${room.type}</div>`;
 
-    const right = document.createElement("div");
+       const right = document.createElement("div");
     right.style.fontSize = "14px";
     const rt = getRoomBaseTotalsExVat(room);
     right.textContent = moneyRangeDisplay(applyVat(rt.low), applyVat(rt.high));
@@ -1031,7 +1090,7 @@ function renderSummary() {
         const amount = Number(opt.roomAddon.amount);
         const groups = Math.ceil(q / every);
 
-        const addonLine = document.createElement("div");
+               const addonLine = document.createElement("div");
         addonLine.className = "summaryLine";
 
         addonLine.innerHTML =
@@ -1070,7 +1129,7 @@ function renderSummary() {
       }
     }
 
-    if (!list.children.length) {
+       if (!list.children.length) {
       const empty = document.createElement("div");
       empty.className = "summaryLine summaryLineMuted";
       empty.textContent = "No selections";
@@ -1090,10 +1149,10 @@ function renderSummary() {
       rulesWrap.appendChild(line);
     }
   } else {
-    const empty = document.createElement("div");
-    empty.className = "summaryLine summaryLineMuted";
-    empty.textContent = "No add ons applied";
-    rulesWrap.appendChild(empty);
+      const empty = document.createElement("div");
+      empty.className = "summaryLine summaryLineMuted";
+      empty.textContent = "No add ons applied";
+      rulesWrap.appendChild(empty);
   }
 
   const sub = document.createElement("div");
@@ -1162,7 +1221,8 @@ function wireEvents() {
   if (rangeToggle) {
     rangeToggle.addEventListener("change", e => {
       state.useRanges = Boolean(e.target.checked);
-      for (const room of state.rooms) clearLightingSelectionsNotInMode(room);
+
+                   for (const room of state.rooms) clearLightingSelectionsNotInMode(room);
       if (state.step === 2) renderActiveRoom();
       if (state.step === 3) renderSummary();
       updateTotalsUI();
@@ -1173,7 +1233,7 @@ function wireEvents() {
   if (networkToggle) {
     networkToggle.addEventListener("change", e => {
       state.includeNetwork = Boolean(e.target.checked);
-      if (!state.includeNetwork) state.project.accessPointsQty = 0;
+      if (!state.includeNetwork) state.project.accessPointQtyById = {};
       if (state.step === 2) renderActiveRoom();
       if (state.step === 3) renderSummary();
       updateTotalsUI();
@@ -1185,6 +1245,7 @@ async function loadData() {
   const res = await fetch("./data.json", { cache: "no-store" });
   if (!res.ok) throw new Error("Could not load data.json");
   state.data = await res.json();
+  ensureProjectNetworkState();
 }
 
 async function main() {
@@ -1205,6 +1266,7 @@ async function main() {
   }
 
   setVatModeUI();
+
   showStep(1);
 }
 
